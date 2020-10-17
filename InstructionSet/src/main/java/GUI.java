@@ -12,7 +12,6 @@ public class GUI {
     static JPanel instructions = new JPanel();
     static JPanel memory = new JPanel();
     static JTextField instructionTextField = new JTextField(20);
-    static JButton runInstructionButton = new JButton("Run Instruction");
     static JTextArea registerTextArea = new JTextArea(10, 30);
     static JTextArea memoryTextArea = new JTextArea(10, 30);
 
@@ -35,12 +34,14 @@ public class GUI {
     }
 
     private static void setRegisterPanel() {
+        registers.setLayout(new BoxLayout(registers, BoxLayout.Y_AXIS));
         registers.add(new JLabel("Register Panel"));
         setRegisterTextArea();
         frame.getContentPane().add(registers, BorderLayout.WEST);
     }
 
     private static void setInstructionPanel() {
+        instructions.setLayout(new BoxLayout(instructions, BoxLayout.Y_AXIS));
         instructions.add(new JLabel("Instruction Panel"));
         setInstructionTextField();
         setRunInstructionButton();
@@ -48,6 +49,7 @@ public class GUI {
     }
 
     private static void setMemoryPanel() {
+        memory.setLayout(new BoxLayout(memory, BoxLayout.Y_AXIS));
         memory.add(new JLabel("Memory Panel"));
         setMemoryTextArea();
         frame.getContentPane().add(memory, BorderLayout.EAST);
@@ -66,7 +68,12 @@ public class GUI {
     }
 
     private static void setInstructionTextField() {
-        instructions.add(instructionTextField);
+
+        JPanel panel = new JPanel();
+
+        panel.add(instructionTextField);
+        instructions.add(panel);
+
         instructionTextField.addKeyListener(new KeyListener() {
 
             @Override
@@ -85,8 +92,14 @@ public class GUI {
     }
 
     private static void setRunInstructionButton() {
-        instructions.add(runInstructionButton);
-        runInstructionButton.addActionListener(new ActionListener() {
+
+        JPanel panel = new JPanel();
+        JButton button = new JButton("Run Instruction");
+
+        panel.add(button);
+        instructions.add(panel);
+
+        button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 runInstruction();
