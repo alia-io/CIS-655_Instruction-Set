@@ -4,16 +4,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashMap;
 
-public class GUI {
+public class ControlAndGUI {
 
+    ComputerMemory mainMemory;
     JFrame frame;
 
     JPanel registers;
     JTextArea registerTextArea;
     String registerText;
-    HashMap<Integer, String> registerMap;
 
     JPanel instructions;
     JLabel instructionLabel;
@@ -23,9 +22,9 @@ public class GUI {
     JPanel memory;
     JTextArea memoryTextArea;
     String memoryText;
-    HashMap<Integer, String> memoryMap;
 
-    public GUI() {
+    public ControlAndGUI() {
+        mainMemory = new ComputerMemory();
         setFrame();
         setPanels();
     }
@@ -75,10 +74,8 @@ public class GUI {
     private void setNewRegisterTextArea() {
         registerTextArea = new JTextArea(10, 20);
         registerText = "";
-        registerMap = new HashMap<Integer, String>(32);
         for (int i = 0; i < 32; i++) {
-            registerMap.put(i, "00000000");
-            registerText = registerText + "\nR" + i + "\t00000000";
+            registerText = registerText + "\nR" + i + mainMemory.getRegisterContentsByLocation(i);
         }
         registerTextArea.setText(registerText);
         registerTextArea.setEditable(false);
@@ -88,10 +85,8 @@ public class GUI {
     private void setNewMemoryContents() {
         memoryTextArea = new JTextArea(10, 20);
         memoryText = "";
-        memoryMap = new HashMap<Integer, String>(32);
         for (int i = 0; i < 32; i++) {
-            memoryMap.put(i, "00000000");
-            memoryText = memoryText + "\n" + i + "\t00000000";
+            memoryText = memoryText + "\n" + i + mainMemory.getMemoryContentsByLocation(i);
         }
         memoryTextArea.setText(memoryText);
         memoryTextArea.setEditable(false);
