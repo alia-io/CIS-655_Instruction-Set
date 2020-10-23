@@ -77,7 +77,6 @@ public class GUI {
         registerText = "";
         registerMap = new HashMap<Integer, String>(32);
         for (int i = 0; i < 32; i++) {
-            JPanel panel = new JPanel();
             registerMap.put(i, "00000000");
             registerText = registerText + "\nR" + i + "\t00000000";
         }
@@ -91,7 +90,6 @@ public class GUI {
         memoryText = "";
         memoryMap = new HashMap<Integer, String>(32);
         for (int i = 0; i < 32; i++) {
-            JPanel panel = new JPanel();
             memoryMap.put(i, "00000000");
             memoryText = memoryText + "\n" + i + "\t00000000";
         }
