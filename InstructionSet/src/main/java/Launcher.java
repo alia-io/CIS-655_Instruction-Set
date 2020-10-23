@@ -6,7 +6,7 @@ public class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                GUI.runGUI();
+                GUI gui = new GUI();
             }
         });
     }
