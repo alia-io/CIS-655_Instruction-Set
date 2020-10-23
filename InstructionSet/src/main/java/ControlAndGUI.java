@@ -31,7 +31,7 @@ public class ControlAndGUI {
 
     private void setFrame() {
         frame = new JFrame("Instruction Set - Alifa Stith");
-        frame.setSize(500, 800);
+        frame.setSize(700, 800);
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -72,10 +72,10 @@ public class ControlAndGUI {
     }
 
     private void setNewRegisterTextArea() {
-        registerTextArea = new JTextArea(10, 20);
+        registerTextArea = new JTextArea(10, 30);
         registerText = "";
         for (int i = 0; i < 32; i++) {
-            registerText = registerText + "\nR" + i + mainMemory.getRegisterContentsByLocation(i);
+            registerText = registerText + "\nR" + i + "\t" + mainMemory.getRegisterContentsByLocation(i);
         }
         registerTextArea.setText(registerText);
         registerTextArea.setEditable(false);
@@ -83,10 +83,10 @@ public class ControlAndGUI {
     }
 
     private void setNewMemoryContents() {
-        memoryTextArea = new JTextArea(10, 20);
+        memoryTextArea = new JTextArea(10, 30);
         memoryText = "";
         for (int i = 0; i < 32; i++) {
-            memoryText = memoryText + "\n" + i + mainMemory.getMemoryContentsByLocation(i);
+            memoryText = memoryText + "\n" + i + "\t" + mainMemory.getMemoryContentsByLocation(i);
         }
         memoryTextArea.setText(memoryText);
         memoryTextArea.setEditable(false);
