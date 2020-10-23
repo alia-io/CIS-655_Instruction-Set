@@ -4,102 +4,121 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashMap;
 
 public class GUI {
 
-    static JFrame frame = new JFrame("Instruction Set");
-    static JPanel registers = new JPanel();
-    static JPanel instructions = new JPanel();
-    static JPanel memory = new JPanel();
-    static JTextField instructionTextField = new JTextField(20);
-    static JTextArea registerTextArea = new JTextArea(10, 30);
-    static JTextArea memoryTextArea = new JTextArea(10, 30);
+    JFrame frame;
 
-    public static void runGUI() {
+    JPanel registers;
+    JTextArea registerTextArea;
+    String registerText;
+    HashMap<Integer, String> registerMap;
+
+    JPanel instructions;
+    JLabel instructionLabel;
+    JTextField instructionTextField;
+    JButton instructionButton;
+
+    JPanel memory;
+    JTextArea memoryTextArea;
+    String memoryText;
+    HashMap<Integer, String> memoryMap;
+
+    public GUI() {
         setFrame();
         setPanels();
     }
 
-    private static void setFrame() {
-        frame.setSize(1200, 800);
+    private void setFrame() {
+        frame = new JFrame("Instruction Set - Alifa Stith");
+        frame.setSize(500, 800);
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
-    private static void setPanels() {
+    private void setPanels() {
         setRegisterPanel();
         setInstructionPanel();
         setMemoryPanel();
     }
 
-    private static void setRegisterPanel() {
+    private void setRegisterPanel() {
+        registers = new JPanel();
         registers.setLayout(new BoxLayout(registers, BoxLayout.Y_AXIS));
-        registers.add(new JLabel("Register Panel"));
-        setRegisterTextArea();
+        registers.add(new JLabel("Registers:"));
+        setNewRegisterTextArea();
         frame.getContentPane().add(registers, BorderLayout.WEST);
     }
 
-    private static void setInstructionPanel() {
+    private void setInstructionPanel() {
+        instructions = new JPanel();
+        instructionLabel = new JLabel("Type an instruction below to run...");
+        instructionTextField = new JTextField(20);
+        instructionButton = new JButton("Run Instruction");
         instructions.setLayout(new BoxLayout(instructions, BoxLayout.Y_AXIS));
-        instructions.add(new JLabel("Instruction Panel"));
+        instructions.add(instructionLabel);
         setInstructionTextField();
-        setRunInstructionButton();
-        frame.getContentPane().add(instructions, BorderLayout.CENTER);
+        setInstructionButton();
+        frame.getContentPane().add(instructions, BorderLayout.SOUTH);
     }
 
-    private static void setMemoryPanel() {
+    private void setMemoryPanel() {
+        memory = new JPanel();
         memory.setLayout(new BoxLayout(memory, BoxLayout.Y_AXIS));
-        memory.add(new JLabel("Memory Panel"));
-        setMemoryTextArea();
+        memory.add(new JLabel("Memory:"));
+        setNewMemoryContents();
         frame.getContentPane().add(memory, BorderLayout.EAST);
     }
 
-    private static void setRegisterTextArea() {
-        registerTextArea.setText("text\ntext\ntext");
+    private void setNewRegisterTextArea() {
+        registerTextArea = new JTextArea(10, 20);
+        registerText = "";
+        registerMap = new HashMap<Integer, String>(32);
+        for (int i = 0; i < 32; i++) {
+            registerMap.put(i, "00000000");
+            registerText = registerText + "\nR" + i + "\t00000000";
+        }
+        registerTextArea.setText(registerText);
         registerTextArea.setEditable(false);
         registers.add(registerTextArea);
     }
 
-    private static void setMemoryTextArea() {
-        memoryTextArea.setText("text\ntext\ntext");
+    private void setNewMemoryContents() {
+        memoryTextArea = new JTextArea(10, 20);
+        memoryText = "";
+        memoryMap = new HashMap<Integer, String>(32);
+        for (int i = 0; i < 32; i++) {
+            memoryMap.put(i, "00000000");
+            memoryText = memoryText + "\n" + i + "\t00000000";
+        }
+        memoryTextArea.setText(memoryText);
         memoryTextArea.setEditable(false);
         memory.add(memoryTextArea);
     }
 
-    private static void setInstructionTextField() {
-
-        JPanel panel = new JPanel();
-
-        panel.add(instructionTextField);
-        instructions.add(panel);
-
+    private void setInstructionTextField() {
+        instructionTextField = new JTextField(20);
+        instructions.add(instructionTextField);
         instructionTextField.addKeyListener(new KeyListener() {
-
             @Override
             public void keyTyped(KeyEvent e) { }
-
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     runInstruction();
                 }
             }
-
             @Override
             public void keyReleased(KeyEvent e) { }
         });
     }
 
-    private static void setRunInstructionButton() {
-
-        JPanel panel = new JPanel();
-        JButton button = new JButton("Run Instruction");
-
-        panel.add(button);
-        instructions.add(panel);
-
-        button.addActionListener(new ActionListener() {
+    private void setInstructionButton() {
+        instructionButton = new JButton("Run Instruction");
+        instructions.add(instructionButton);
+        instructionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 runInstruction();
@@ -107,9 +126,14 @@ public class GUI {
         });
     }
 
-    private static void runInstruction() {
+    private void runInstruction() {
         String instruction = instructionTextField.getText();
+        if (instruction.equals("")) {
+            instructionLabel.setText("Type an instruction below to run...");
+            return;
+        }
         // TODO: run instruction
+        instructionLabel.setText("Translated Instruction: "); // TODO: put translated instruction here
         instructionTextField.setText("");
     }
 
