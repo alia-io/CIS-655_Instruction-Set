@@ -2,6 +2,10 @@ public class InstructionToBinaryParser {
 
     int command; // holds the number id of the command (from doc)
 
+    public InstructionToBinaryParser() {
+        this.command = 0; // represents invalid command
+    }
+
     public String parseInput(String input) {
 
         String[] splitInput;
@@ -37,13 +41,28 @@ public class InstructionToBinaryParser {
 
         if (register1 == null) { return null; } // invalid command
 
-        if (this.command < 4) { // put command
+        if (this.command < 4) { // put command - 2nd arg is immediate
+            if (this.command == 1) {
+                immediate = this.getIntegerImmediate(input[2]);
+                if (immediate == null) { return null; } // invalid command
+                Main.mainMemory.setImmediateRegister1Value(immediate); // set immediate register to hold immediate value
+            } else if (this.command == 2) {
+                immediate = this.getFloatImmediate(input[2]);
+                if (immediate == null) { return null; } // invalid command
+                Main.mainMemory.setImmediateRegister1Value(immediate);
+            } else { // command 3
+                immediate = this.getDoubleImmediate(input[2]);
+                if (immediate == null) { return null; } // invalid command
+                Main.mainMemory.setImmediateRegister1And2Values(immediate);
+            }
+            return opcode + register1; // opcode + 1 register (13 bits)
 
-        } else { // convert command
-
+        } else { // convert command - 2nd arg is register
+            register2 = this.getRegister(input[2]);
+            if (register2 == null) { return null; } // invalid command
+            return opcode + register1 + register2; // opcode + 2 registers (18 bits)
         }
 
-        return "";
     }
 
     private String getFourWordInstruction(String[] input) {
@@ -172,10 +191,10 @@ public class InstructionToBinaryParser {
             case "double":
                 if (input2.equals("int")) {
                     this.command = 8;
-                    return "00001100";
+                    return "00001110";
                 } else if (input2.equals("float")) {
                     this.command = 9;
-                    return "00001110";
+                    return "00001111";
                 }
             default: // invalid
                 return null;
@@ -424,7 +443,7 @@ public class InstructionToBinaryParser {
             return null; // invalid input -- not an integer
         }
 
-        if (registerNumber < 0 || registerNumber > 31) {
+        if (registerNumber < 0 || registerNumber > 30) {
             return null; // invalid input -- not a valid register number
         }
 
@@ -432,21 +451,195 @@ public class InstructionToBinaryParser {
     }
 
     private String getRegisterNumberInBinary(int registerNumber) {
+        return this.convertDecimalToBinaryIntegerUnsigned(registerNumber, 5);
+    }
 
-        String registerBinary = "";
-        int powerOfTwo = 16;
+    private String getIntegerImmediate(String input) {
+
+        int decimalNumber;
+
+        try {
+            decimalNumber = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return this.convertDecimalToBinaryIntegerSigned(decimalNumber, 32);
+    }
+
+    private String getFloatImmediate(String input) {
+
+        float floatNumber;
+
+        try {
+            floatNumber = Float.parseFloat(input);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return this.convertDecimalTo32BitBinaryFloat(floatNumber);
+    }
+
+    private String getDoubleImmediate(String input) {
+
+        double doubleNumber;
+
+        try {
+            doubleNumber = Double.parseDouble(input);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return this.convertDecimalTo64BitBinaryDouble(doubleNumber);
+    }
+
+    // http://sandbox.mc.edu/~bennet/cs110/flt/dtof.html
+    private String convertDecimalTo32BitBinaryFloat(float decimalNumber) {
+
+        String result = "";
+
+        String sign;
+        String exponent;
+        String mantissa;
+
+        int integral;
+        float fractional;
+
+        String integralBinary = "";
+        String fractionalBinary = "";
+
+        if (decimalNumber < 0) {
+            sign = "1";
+        } else {
+            sign = "0";
+        }
+
+        integral = (int) Math.abs(decimalNumber);
+        fractional = Math.abs(decimalNumber) - integral;
+
+        integralBinary = this.convertIntegralToBinary(integral);
+        fractionalBinary = this.convertFractionalToBinary(fractional);
+
+        if (integral == 0) {
+            if (fractional == 0) {
+                return sign + "0000000000000000000000000000000";
+            } else {
+                for (int i = 0; i < fractionalBinary.length(); i++) {
+                    if (fractionalBinary.charAt(i) == '1') {
+                        exponent = this.convertDecimalToBinaryIntegerUnsigned(i - fractionalBinary.length() + 127, 8);
+                        mantissa = fractionalBinary.substring(i + 1);
+                        while (mantissa.length() < 23) {
+                            mantissa = mantissa + "0";
+                        }
+                        if (mantissa.length() > 23) {
+                            mantissa = mantissa.substring(0, 23);
+                        }
+                        return sign + exponent + mantissa;
+                    }
+                }
+            }
+        } else {
+            exponent = this.convertDecimalToBinaryIntegerUnsigned(integralBinary.length() + 126, 8);
+            mantissa = integralBinary.substring(1);
+            if (fractional != 0) {
+                mantissa = mantissa + fractionalBinary;
+            }
+            while (mantissa.length() < 23) {
+                mantissa = mantissa + "0";
+            }
+            if (mantissa.length() > 23) {
+                mantissa = mantissa.substring(0, 23);
+            }
+            return sign + exponent + mantissa;
+        }
+
+        return null;
+    }
+
+    private String convertDecimalTo64BitBinaryDouble(double decimalNumber) {
+
+        return "";
+    }
+
+    // TODO: two's complement
+    private String convertDecimalToBinaryIntegerSigned(int decimalNumber, int binaryDigits) {
+
+        String binaryNumber = "";
+        int powerOfTwo = (int) Math.pow(2, binaryDigits - 1);
 
         while (powerOfTwo > 0) {
-            if (powerOfTwo <= registerNumber) {
-                registerBinary = registerBinary + "1";
-                registerNumber = registerNumber - powerOfTwo;
+            if (powerOfTwo <= decimalNumber) {
+                binaryNumber = binaryNumber + "1";
+                decimalNumber = decimalNumber - powerOfTwo;
             } else {
-                registerBinary = registerBinary + "0";
+                binaryNumber = binaryNumber + "0";
             }
             powerOfTwo = powerOfTwo / 2;
         }
 
-        return registerBinary;
+        return binaryNumber;
+    }
+
+    private String convertDecimalToBinaryIntegerUnsigned(int decimalNumber, int binaryDigits) {
+
+        String binaryNumber = "";
+        int powerOfTwo = (int) Math.pow(2, binaryDigits - 1);
+
+        while (powerOfTwo > 0) {
+            if (powerOfTwo <= decimalNumber) {
+                binaryNumber = binaryNumber + "1";
+                decimalNumber = decimalNumber - powerOfTwo;
+            } else {
+                binaryNumber = binaryNumber + "0";
+            }
+            powerOfTwo = powerOfTwo / 2;
+        }
+
+        return binaryNumber;
+    }
+
+    private String convertIntegralToBinary(int integral) {
+
+        String binaryNumber = "";
+        int powerOfTwo = 1;
+
+        if (integral == 0) {
+            return "0";
+        }
+
+        while (powerOfTwo * 2 < integral) {
+            powerOfTwo = powerOfTwo * 2;
+        }
+
+        while (powerOfTwo > 0) {
+            if (powerOfTwo <= integral) {
+                binaryNumber = binaryNumber + "1";
+                integral = integral - powerOfTwo;
+            } else {
+                binaryNumber = binaryNumber + "0";
+            }
+            powerOfTwo = powerOfTwo / 2;
+        }
+
+        return binaryNumber;
+    }
+
+    private String convertFractionalToBinary(float fractional) {
+
+        String binaryNumber = "";
+        int maxLength = 56;
+
+        for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
+            fractional = fractional * 2;
+            if (fractional > 1) {
+                binaryNumber = binaryNumber + "1";
+                fractional = fractional - 1;
+            } else {
+                binaryNumber = binaryNumber + "0";
+            }
+        }
+
+        return binaryNumber;
     }
 
 }

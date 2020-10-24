@@ -1,8 +1,11 @@
 import javax.swing.*;
 
-public class Launcher {
+public class Main {
+
+    public static ComputerMemory mainMemory;
 
     public static void main(String[] args) {
+        mainMemory = new ComputerMemory();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

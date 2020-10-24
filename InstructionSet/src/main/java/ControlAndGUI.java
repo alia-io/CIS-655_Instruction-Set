@@ -7,15 +7,16 @@ import java.awt.event.KeyListener;
 
 public class ControlAndGUI {
 
-    ComputerMemory mainMemory;
     JFrame frame;
+    InstructionToBinaryParser parser;
 
     JPanel registers;
     JTextArea registerTextArea;
     String registerText;
 
     JPanel instructions;
-    JLabel instructionLabel;
+    JLabel instructionLabel1;
+    JLabel instructionLabel2;
     JTextField instructionTextField;
     JButton instructionButton;
 
@@ -24,7 +25,7 @@ public class ControlAndGUI {
     String memoryText;
 
     public ControlAndGUI() {
-        mainMemory = new ComputerMemory();
+        parser = new InstructionToBinaryParser();
         setFrame();
         setPanels();
     }
@@ -53,11 +54,13 @@ public class ControlAndGUI {
 
     private void setInstructionPanel() {
         instructions = new JPanel();
-        instructionLabel = new JLabel("Type an instruction below to run...");
+        instructionLabel1 = new JLabel("Type an instruction below to run...");
+        instructionLabel2 = new JLabel("");
         instructionTextField = new JTextField(20);
         instructionButton = new JButton("Run Instruction");
         instructions.setLayout(new BoxLayout(instructions, BoxLayout.Y_AXIS));
-        instructions.add(instructionLabel);
+        instructions.add(instructionLabel1);
+        instructions.add(instructionLabel2);
         setInstructionTextField();
         setInstructionButton();
         frame.getContentPane().add(instructions, BorderLayout.SOUTH);
@@ -74,9 +77,10 @@ public class ControlAndGUI {
     private void setNewRegisterTextArea() {
         registerTextArea = new JTextArea(10, 30);
         registerText = "";
-        for (int i = 0; i < 32; i++) {
-            registerText = registerText + "\nR" + i + "\t" + mainMemory.getRegisterContentsByLocation(i);
+        for (int i = 0; i < 31; i++) {
+            registerText = registerText + "\nR" + i + "\t" + Main.mainMemory.getRegisterContentsByLocation(i);
         }
+        registerText = registerText + "\nR31 (Immed)\t" + Main.mainMemory.getImmediateRegister1Value();
         registerTextArea.setText(registerText);
         registerTextArea.setEditable(false);
         registers.add(registerTextArea);
@@ -86,7 +90,7 @@ public class ControlAndGUI {
         memoryTextArea = new JTextArea(10, 30);
         memoryText = "";
         for (int i = 0; i < 32; i++) {
-            memoryText = memoryText + "\n" + i + "\t" + mainMemory.getMemoryContentsByLocation(i);
+            memoryText = memoryText + "\n" + i + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
         }
         memoryTextArea.setText(memoryText);
         memoryTextArea.setEditable(false);
@@ -122,13 +126,34 @@ public class ControlAndGUI {
     }
 
     private void runInstruction() {
+
         String instruction = instructionTextField.getText();
+        String rawResult;
+        String displayResult = "";
+
         if (instruction.equals("")) {
-            instructionLabel.setText("Type an instruction below to run...");
+            instructionLabel1.setText("Type an instruction below to run...");
+            instructionLabel2.setText("");
             return;
         }
-        // TODO: run instruction
-        instructionLabel.setText("Translated Instruction: "); // TODO: put translated instruction here
+
+        rawResult = parser.parseInput(instruction);
+
+        if (rawResult == null) {
+            instructionLabel1.setText("Invalid instruction! Type an instruction below to run...");
+            instructionLabel2.setText("");
+        } else {
+            instructionLabel1.setText("Instruction: " + instruction);
+            if (rawResult.length() == 13) {
+                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8);
+            } else if (rawResult.length() == 18) {
+                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13);
+            } else if (rawResult.length() == 23) {
+                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18);
+            }
+            instructionLabel2.setText("Translation: " + displayResult);
+        }
+
         instructionTextField.setText("");
     }
 
