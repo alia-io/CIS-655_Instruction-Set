@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class ControlAndGUI {
+public class GUI {
 
     JFrame frame;
     InstructionToBinaryParser parser;
@@ -24,7 +24,7 @@ public class ControlAndGUI {
     JTextArea memoryTextArea;
     String memoryText;
 
-    public ControlAndGUI() {
+    public GUI() {
         parser = new InstructionToBinaryParser();
         setFrame();
         setPanels();
@@ -76,23 +76,14 @@ public class ControlAndGUI {
 
     private void setNewRegisterTextArea() {
         registerTextArea = new JTextArea(10, 30);
-        registerText = "";
-        for (int i = 0; i < 31; i++) {
-            registerText = registerText + "\nR" + i + "\t" + Main.mainMemory.getRegisterContentsByLocation(i);
-        }
-        registerText = registerText + "\nR31 (Immed)\t" + Main.mainMemory.getImmediateRegister1Value();
-        registerTextArea.setText(registerText);
+        updateRegisterTextArea();
         registerTextArea.setEditable(false);
         registers.add(registerTextArea);
     }
 
     private void setNewMemoryContents() {
         memoryTextArea = new JTextArea(10, 30);
-        memoryText = "";
-        for (int i = 0; i < 32; i++) {
-            memoryText = memoryText + "\n" + i + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
-        }
-        memoryTextArea.setText(memoryText);
+        updateMemoryTextArea();
         memoryTextArea.setEditable(false);
         memory.add(memoryTextArea);
     }
@@ -144,17 +135,35 @@ public class ControlAndGUI {
             instructionLabel2.setText("");
         } else {
             instructionLabel1.setText("Instruction: " + instruction);
-            if (rawResult.length() == 13) {
-                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8);
-            } else if (rawResult.length() == 18) {
+            if (rawResult.length() == 18 || rawResult.length() == 45) { // opcode (8) - register (5) - register (5) || opcode (8) - register(5) - immediate (32)
                 displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13);
-            } else if (rawResult.length() == 23) {
+            } else if (rawResult.length() == 23 || rawResult.length() == 50) { // opcode (8) - register (5) - register (5) - register (5) || // opcode (8) - register (5) - register (5) - immediate (32)
                 displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18);
+            } else if (rawResult.length() == 77) { // opcode (8) - register(5) - immediate (32) - immediate (32)
+                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 45) + " " + rawResult.substring(45);
+            } else if (rawResult.length() == 82) { // opcode (8) - register (5) - register (5) - immediate (32) - immediate (32)
+                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18, 50) + " " + rawResult.substring(50);
             }
             instructionLabel2.setText("Translation: " + displayResult);
         }
 
         instructionTextField.setText("");
+    }
+
+    public void updateRegisterTextArea() {
+        registerText = "";
+        for (int i = 0; i < 32; i++) {
+            registerText = registerText + "\nR" + i + "\t" + Main.mainMemory.getRegisterContentsByLocation(i);
+        }
+        registerTextArea.setText(registerText);
+    }
+
+    public void updateMemoryTextArea() {
+        memoryText = "";
+        for (int i = 0; i < 32; i++) {
+            memoryText = memoryText + "\n" + i + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
+        }
+        memoryTextArea.setText(memoryText);
     }
 
 }

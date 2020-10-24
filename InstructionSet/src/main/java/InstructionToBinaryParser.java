@@ -45,17 +45,14 @@ public class InstructionToBinaryParser {
             if (this.command == 1) {
                 immediate = this.getIntegerImmediate(input[2]);
                 if (immediate == null) { return null; } // invalid command
-                Main.mainMemory.setImmediateRegister1Value(immediate); // set immediate register to hold immediate value
             } else if (this.command == 2) {
                 immediate = this.getFloatImmediate(input[2]);
                 if (immediate == null) { return null; } // invalid command
-                Main.mainMemory.setImmediateRegister1Value(immediate);
             } else { // command 3
                 immediate = this.getDoubleImmediate(input[2]);
                 if (immediate == null) { return null; } // invalid command
-                Main.mainMemory.setImmediateRegister1And2Values(immediate);
             }
-            return opcode + register1; // opcode + 1 register (13 bits)
+            return opcode + register1 + immediate; // opcode + 1 register + immediate (45 bits or 77 bits)
 
         } else { // convert command - 2nd arg is register
             register2 = this.getRegister(input[2]);
@@ -493,7 +490,7 @@ public class InstructionToBinaryParser {
         return this.convertDecimalTo64BitBinaryDouble(doubleNumber);
     }
 
-    // http://sandbox.mc.edu/~bennet/cs110/flt/dtof.html
+    // IEEE conversion method source: http://sandbox.mc.edu/~bennet/cs110/flt/dtof.html
     private String convertDecimalTo32BitBinaryFloat(float decimalNumber) {
 
         String result = "";
@@ -556,9 +553,67 @@ public class InstructionToBinaryParser {
         return null;
     }
 
+    // IEEE conversion method source: http://web.cse.ohio-state.edu/~reeves.92/CSE2421au12/SlidesDay32.pdf
     private String convertDecimalTo64BitBinaryDouble(double decimalNumber) {
 
-        return "";
+        String result = "";
+
+        String sign;
+        String exponent;
+        String mantissa;
+
+        int integral;
+        double fractional;
+
+        String integralBinary = "";
+        String fractionalBinary = "";
+
+        if (decimalNumber < 0) {
+            sign = "1";
+        } else {
+            sign = "0";
+        }
+
+        integral = (int) Math.abs(decimalNumber);
+        fractional = Math.abs(decimalNumber) - integral;
+
+        integralBinary = this.convertIntegralToBinary(integral);
+        fractionalBinary = this.convertFractionalToBinary(fractional);
+
+        if (integral == 0) {
+            if (fractional == 0) {
+                return sign + "000000000000000000000000000000000000000000000000000000000000000";
+            } else {
+                for (int i = 0; i < fractionalBinary.length(); i++) {
+                    if (fractionalBinary.charAt(i) == '1') {
+                        exponent = this.convertDecimalToBinaryIntegerUnsigned(i - fractionalBinary.length() + 1023, 11);
+                        mantissa = fractionalBinary.substring(i + 1);
+                        while (mantissa.length() < 52) {
+                            mantissa = mantissa + "0";
+                        }
+                        if (mantissa.length() > 52) {
+                            mantissa = mantissa.substring(0, 52);
+                        }
+                        return sign + exponent + mantissa;
+                    }
+                }
+            }
+        } else {
+            exponent = this.convertDecimalToBinaryIntegerUnsigned(integralBinary.length() + 1022, 11);
+            mantissa = integralBinary.substring(1);
+            if (fractional != 0) {
+                mantissa = mantissa + fractionalBinary;
+            }
+            while (mantissa.length() < 52) {
+                mantissa = mantissa + "0";
+            }
+            if (mantissa.length() > 52) {
+                mantissa = mantissa.substring(0, 52);
+            }
+            return sign + exponent + mantissa;
+        }
+
+        return null;
     }
 
     private String convertDecimalToBinaryIntegerSigned(int decimalNumber, int binaryDigits) {
@@ -566,16 +621,16 @@ public class InstructionToBinaryParser {
         String binaryNumber = "";
         String invertedBinaryNumber = "";
         String twosComplementBinaryNumber = "";
-        int powerOfTwo = (int) Math.pow(2, binaryDigits - 1);
+        double powerOfTwo = Math.floor(Math.pow(2, binaryDigits - 1));
 
         while (powerOfTwo > 0) {
             if (powerOfTwo <= decimalNumber) {
                 binaryNumber = binaryNumber + "1";
-                decimalNumber = decimalNumber - powerOfTwo;
+                decimalNumber = (int) (decimalNumber - powerOfTwo);
             } else {
                 binaryNumber = binaryNumber + "0";
             }
-            powerOfTwo = powerOfTwo / 2;
+            powerOfTwo = Math.floor(powerOfTwo / 2);
         }
 
         if (decimalNumber < 0) {
@@ -643,6 +698,24 @@ public class InstructionToBinaryParser {
     }
 
     private String convertFractionalToBinary(float fractional) {
+
+        String binaryNumber = "";
+        int maxLength = 56;
+
+        for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
+            fractional = fractional * 2;
+            if (fractional > 1) {
+                binaryNumber = binaryNumber + "1";
+                fractional = fractional - 1;
+            } else {
+                binaryNumber = binaryNumber + "0";
+            }
+        }
+
+        return binaryNumber;
+    }
+
+    private String convertFractionalToBinary(double fractional) {
 
         String binaryNumber = "";
         int maxLength = 56;
