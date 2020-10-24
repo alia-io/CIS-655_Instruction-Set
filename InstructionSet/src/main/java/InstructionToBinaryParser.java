@@ -561,10 +561,11 @@ public class InstructionToBinaryParser {
         return "";
     }
 
-    // TODO: two's complement
     private String convertDecimalToBinaryIntegerSigned(int decimalNumber, int binaryDigits) {
 
         String binaryNumber = "";
+        String invertedBinaryNumber = "";
+        String twosComplementBinaryNumber = "";
         int powerOfTwo = (int) Math.pow(2, binaryDigits - 1);
 
         while (powerOfTwo > 0) {
@@ -575,6 +576,23 @@ public class InstructionToBinaryParser {
                 binaryNumber = binaryNumber + "0";
             }
             powerOfTwo = powerOfTwo / 2;
+        }
+
+        if (decimalNumber < 0) {
+            for (int i = 0; i < binaryNumber.length(); i++) {
+                if (binaryNumber.charAt(i) == '0') {
+                    invertedBinaryNumber = invertedBinaryNumber + "1";
+                } else {
+                    invertedBinaryNumber = invertedBinaryNumber + "0";
+                }
+            }
+            for (int i = invertedBinaryNumber.length() - 1; i >= 0; i--) {
+                if (invertedBinaryNumber.charAt(i) == '0') {
+                    return invertedBinaryNumber.substring(0, i) + "1" + twosComplementBinaryNumber;
+                } else {
+                    twosComplementBinaryNumber = "0" + twosComplementBinaryNumber;
+                }
+            }
         }
 
         return binaryNumber;
