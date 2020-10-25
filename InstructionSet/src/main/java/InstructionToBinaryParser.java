@@ -493,8 +493,6 @@ public class InstructionToBinaryParser {
     // IEEE conversion method source: http://sandbox.mc.edu/~bennet/cs110/flt/dtof.html
     private String convertDecimalTo32BitBinaryFloat(float decimalNumber) {
 
-        String result = "";
-
         String sign;
         String exponent;
         String mantissa;
@@ -704,7 +702,7 @@ public class InstructionToBinaryParser {
 
         for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
             fractional = fractional * 2;
-            if (fractional > 1) {
+            if (fractional >= 1) {
                 binaryNumber = binaryNumber + "1";
                 fractional = fractional - 1;
             } else {
@@ -722,7 +720,7 @@ public class InstructionToBinaryParser {
 
         for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
             fractional = fractional * 2;
-            if (fractional > 1) {
+            if (fractional >= 1) {
                 binaryNumber = binaryNumber + "1";
                 fractional = fractional - 1;
             } else {
