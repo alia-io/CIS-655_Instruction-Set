@@ -33,7 +33,7 @@ public class InstructionToBinaryParser {
 
         opcode = this.getOpcode(input[0]);
 
-        if (this.command == 0 || this.command > 9 || opcode == null) { // invalid command
+        if (this.command == 0 || this.command > 11 || opcode == null) { // invalid command
             return null;
         }
 
@@ -54,7 +54,7 @@ public class InstructionToBinaryParser {
             }
             return opcode + register1 + immediate; // opcode + 1 register + immediate (45 bits or 77 bits)
 
-        } else { // convert command - 2nd arg is register
+        } else { // convert or copy command - 2nd arg is register
             register2 = this.getRegister(input[2]);
             if (register2 == null) { return null; } // invalid command
             return opcode + register1 + register2; // opcode + 2 registers (18 bits)
@@ -65,21 +65,74 @@ public class InstructionToBinaryParser {
     private String getFourWordInstruction(String[] input) {
 
         String opcode;
+        String register1 = null;
+        String register2 = null;
+        String register3 = null;
+        String immediate = null;
 
         opcode = this.getOpcode(input[0]);
 
-        if (this.command < 10) { // invalid command
+        if (this.command < 12) { // invalid command
             return null;
         }
 
-        return "";
+        register1 = this.getRegister(input[1]);
+        if (register1 == null) { return null; } // invalid command
+
+        if (this.command == 14) {
+            immediate = this.getIntegerImmediate(input[2]);
+            if (immediate == null) { return null; } // invalid command
+            return opcode + register1 + immediate; // opcode + register + integer-immediate (45 bits)
+        }
+
+        if (this.command == 15) {
+            register2 = this.getRegister(input[2]);
+            if (register2 == null) { return null; } // invalid command
+            return opcode + register1 + register2; // opcode + 2 registers (18 bits)
+        }
+
+        if (this.command == 12 || this.command == 13 || this.command >= 48) {
+            register2 = this.getRegister(input[2]);
+            if (register2 == null) { return null; } // invalid command
+            immediate = this.getIntegerImmediate(input[3]);
+            if (immediate == null) { return null; } // invalid command
+            return opcode + register1 + register2 + immediate; // opcode + 2 registers + integer-immediate (50 bits)
+        }
+
+        if (this.command == 16 || this.command == 18 || this.command == 20 || this.command == 22 || this.command == 26
+                || this.command == 30 || this.command == 34 || this.command == 38 || this.command == 40 || this.command == 44) {
+            register2 = this.getSecondArgumentIfRegister(input[2]);
+            if (register2 == null) { // 2nd arg is immediate, 3rd arg is register
+                opcode = opcode + "1"; // complete opcode to indicate order of arguments (immed - reg)
+                immediate = this.getIntegerImmediate(input[2]);
+                if (immediate == null) { return null; } // invalid command
+                register2 = this.getRegister(input[3]);
+                if (register2 == null) { return null; } // invalid command
+            } else { // 2nd arg is register, 3rd arg is immediate
+                opcode = opcode + "0"; // complete opcode to indicate order of arguments (reg - immed)
+                immediate = this.getIntegerImmediate(input[3]);
+                if (immediate == null) { return null; } // invalid command
+            }
+            return opcode + register1 + register2 + immediate; // opcode + 2 registers + integer-immediate (50 bits)
+        }
+
+        // all other commands are reg - reg - reg
+
+        register2 = this.getRegister(input[2]);
+        if (register2 == null) { return null; } // invalid command
+
+        register3 = this.getRegister(input[3]);
+        if (register3 == null) { return null; } // invalid command
+
+        return opcode + register1 + register2 + register3; // opcode + 3 registers (23 bits)
+
     }
 
     private String getOpcode(String input) {
 
         String[] splitInput = input.split("-");
 
-        // validate by length of command -- can only be 2, 3, or 4 words when separated by dashes
+        // validate by length of opcode command -- can only be 2, 3, or 4 words when separated by dashes
         switch(splitInput.length) {
             case 2:
                 return this.getTwoWordOpcode(splitInput);
@@ -96,29 +149,31 @@ public class InstructionToBinaryParser {
         switch(input[0]) {
             case "put": // commands 1, 2, 3
                 return this.putOpcodes(input[1]);
-            case "shift": // commands 10, 11
+            case "copy": // commands 4, 5
+                return this.copyOpcodes(input[1]);
+            case "shift": // commands 12, 13
                 return this.shiftOpcodes(input[1]);
-            case "not": // commands 12, 13
+            case "not": // commands 14, 15
                 return this.notOpcodes(input[1]);
-            case "and": // commands 14, 15
+            case "and": // commands 16, 17
                 return this.andOpcodes(input[1]);
-            case "or": // commands 16, 17
+            case "or": // commands 18, 19
                 return this.orOpcodes(input[1]);
-            case "xor": // commands 18, 19
+            case "xor": // commands 20, 21
                 return this.xorOpcodes(input[1]);
-            case "add": // commands 20, 21, 22, 23
+            case "add": // commands 22, 23, 24, 25
                 return this.addOpcodes(input[1]);
-            case "sub": // commands 24, 25, 26, 27
+            case "sub": // commands 26, 27, 28, 29
                 return this.subOpcodes(input[1]);
-            case "mult": // commands 28, 29, 30, 31
+            case "mult": // commands 30, 31, 32, 33
                 return this.multOpcodes(input[1]);
-            case "div": // commands 32, 33, 34, 35
+            case "div": // commands 34, 35, 36, 37
                 return this.divOpcodes(input[1]);
-            case "mod": // commands 36, 37
+            case "mod": // commands 38, 39
                 return this.modOpcodes(input[1]);
-            case "load": // commands 46, 47, 48
+            case "load": // commands 48, 49
                 return this.loadOpcodes(input[1]);
-            case "store": // commands 49, 50, 51
+            case "store": // commands 50, 51
                 return this.storeOpcodes(input[1]);
             default: // invalid input
                 return null;
@@ -127,7 +182,7 @@ public class InstructionToBinaryParser {
 
     private String getThreeWordOpcode(String[] input) {
         switch(input[0]) {
-            case "set": // commands 42, 43, 44, 45
+            case "set": // commands 44, 45, 46, 47
                 if (input[1].equals("equal")) {
                     return this.setEqualOpcodes(input[2]);
                 }
@@ -138,11 +193,11 @@ public class InstructionToBinaryParser {
 
     private String getFourWordOpcode(String[] input) {
         switch(input[0]) {
-            case "convert": // commands 4, 5, 6, 7, 8, 9
+            case "convert": // commands 6, 7, 8, 9, 10, 11
                 if (input[2].equals("to")) {
                     return this.convertOpcodes(input[1], input[3]);
                 }
-            case "set": // commands 38, 39, 40, 41
+            case "set": // commands 40, 41, 42, 43
                 if (input[1].equals("less") && input[2].equals("than")) {
                     return this.setLessThanOpcodes(input[3]);
                 }
@@ -167,31 +222,44 @@ public class InstructionToBinaryParser {
         }
     }
 
+    private String copyOpcodes(String input) {
+        switch (input) {
+            case "single":
+                this.command = 4;
+                return "00001000";
+            case "double":
+                this.command = 5;
+                return "00010010";
+            default: // invalid input
+                return null;
+        }
+    }
+
     private String convertOpcodes(String input1, String input2) {
         switch (input1) {
             case "int":
                 if (input2.equals("float")) {
-                    this.command = 4;
-                    return "00001010";
+                    this.command = 6;
+                    return "00010010";
                 } else if (input2.equals("double")) {
-                    this.command = 5;
-                    return "00001011";
+                    this.command = 7;
+                    return "00010011";
                 }
             case "float":
                 if (input2.equals("int")) {
-                    this.command = 6;
-                    return "00001100";
+                    this.command = 8;
+                    return "00010100";
                 } else if (input2.equals("double")) {
-                    this.command = 7;
-                    return "00001101";
+                    this.command = 9;
+                    return "00010101";
                 }
             case "double":
                 if (input2.equals("int")) {
-                    this.command = 8;
-                    return "00001110";
+                    this.command = 10;
+                    return "00010110";
                 } else if (input2.equals("float")) {
-                    this.command = 9;
-                    return "00001111";
+                    this.command = 11;
+                    return "00010111";
                 }
             default: // invalid
                 return null;
@@ -201,11 +269,11 @@ public class InstructionToBinaryParser {
     private String shiftOpcodes(String input) {
         switch (input) {
             case "left":
-                this.command = 10;
-                return "00010000";
-            case "right":
-                this.command = 11;
+                this.command = 12;
                 return "00011000";
+            case "right":
+                this.command = 13;
+                return "00100000";
             default: // invalid
                 return null;
         }
@@ -214,21 +282,8 @@ public class InstructionToBinaryParser {
     private String notOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 12;
-                return "00100000";
-            case "int":
-                this.command = 13;
-                return "00100010";
-            default: // invalid
-                return null;
-        }
-    }
-
-    private String andOpcodes(String input) {
-        switch (input) {
-            case "imm":
                 this.command = 14;
-                return "0010100"; // last bit set later
+                return "00101000";
             case "int":
                 this.command = 15;
                 return "00101010";
@@ -237,7 +292,7 @@ public class InstructionToBinaryParser {
         }
     }
 
-    private String orOpcodes(String input) {
+    private String andOpcodes(String input) {
         switch (input) {
             case "imm":
                 this.command = 16;
@@ -250,7 +305,7 @@ public class InstructionToBinaryParser {
         }
     }
 
-    private String xorOpcodes(String input) {
+    private String orOpcodes(String input) {
         switch (input) {
             case "imm":
                 this.command = 18;
@@ -263,7 +318,7 @@ public class InstructionToBinaryParser {
         }
     }
 
-    private String addOpcodes(String input) {
+    private String xorOpcodes(String input) {
         switch (input) {
             case "imm":
                 this.command = 20;
@@ -271,12 +326,25 @@ public class InstructionToBinaryParser {
             case "int":
                 this.command = 21;
                 return "01000010";
-            case "float":
+            default: // invalid
+                return null;
+        }
+    }
+
+    private String addOpcodes(String input) {
+        switch (input) {
+            case "imm":
                 this.command = 22;
-                return "01000100";
-            case "double":
+                return "0100100"; // last bit set later
+            case "int":
                 this.command = 23;
-                return "01000110";
+                return "01001010";
+            case "float":
+                this.command = 24;
+                return "01001100";
+            case "double":
+                this.command = 25;
+                return "01001110";
             default: // invalid
                 return null;
         }
@@ -285,17 +353,17 @@ public class InstructionToBinaryParser {
     private String subOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 24;
-                return "0100100"; // last bit set later
-            case "int":
-                this.command = 25;
-                return "01001010";
-            case "float":
                 this.command = 26;
-                return "01001100";
-            case "double":
+                return "0101000"; // last bit set later
+            case "int":
                 this.command = 27;
-                return "01001110";
+                return "01010010";
+            case "float":
+                this.command = 28;
+                return "01010100";
+            case "double":
+                this.command = 29;
+                return "01010110";
             default: // invalid
                 return null;
         }
@@ -304,17 +372,17 @@ public class InstructionToBinaryParser {
     private String multOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 28;
-                return "0101000"; // last bit set later
-            case "int":
-                this.command = 29;
-                return "01010010";
-            case "float":
                 this.command = 30;
-                return "01010100";
-            case "double":
+                return "0101100"; // last bit set later
+            case "int":
                 this.command = 31;
-                return "01010110";
+                return "01011010";
+            case "float":
+                this.command = 32;
+                return "01011100";
+            case "double":
+                this.command = 33;
+                return "01011110";
             default: // invalid
                 return null;
         }
@@ -323,17 +391,17 @@ public class InstructionToBinaryParser {
     private String divOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 32;
-                return "0101100"; // last bit set later
-            case "int":
-                this.command = 33;
-                return "01011010";
-            case "float":
                 this.command = 34;
-                return "01011100";
-            case "double":
+                return "0110000"; // last bit set later
+            case "int":
                 this.command = 35;
-                return "01011110";
+                return "01100010";
+            case "float":
+                this.command = 36;
+                return "01100100";
+            case "double":
+                this.command = 37;
+                return "01100110";
             default: // invalid
                 return null;
         }
@@ -342,11 +410,11 @@ public class InstructionToBinaryParser {
     private String modOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 36;
-                return "0110000"; // last bit set later
+                this.command = 38;
+                return "0110100"; // last bit set later
             case "int":
-                this.command = 37;
-                return "01100010";
+                this.command = 39;
+                return "01101010";
             default: // invalid
                 return null;
         }
@@ -355,17 +423,17 @@ public class InstructionToBinaryParser {
     private String setLessThanOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 38;
-                return "0110100"; // last bit set later
-            case "int":
-                this.command = 39;
-                return "01101010";
-            case "float":
                 this.command = 40;
-                return "01101100";
-            case "double":
+                return "0111000"; // last bit set later
+            case "int":
                 this.command = 41;
-                return "01101110";
+                return "01110010";
+            case "float":
+                this.command = 42;
+                return "01110100";
+            case "double":
+                this.command = 43;
+                return "01110110";
             default: // invalid
                 return null;
         }
@@ -374,17 +442,17 @@ public class InstructionToBinaryParser {
     private String setEqualOpcodes(String input) {
         switch (input) {
             case "imm":
-                this.command = 42;
-                return "0111000"; // last bit set later
-            case "int":
-                this.command = 43;
-                return "01110010";
-            case "float":
                 this.command = 44;
-                return "01110100";
-            case "double":
+                return "0111100"; // last bit set later
+            case "int":
                 this.command = 45;
-                return "01110110";
+                return "01111010";
+            case "float":
+                this.command = 46;
+                return "01111100";
+            case "double":
+                this.command = 47;
+                return "01111110";
             default: // invalid
                 return null;
         }
@@ -392,15 +460,12 @@ public class InstructionToBinaryParser {
 
     private String loadOpcodes(String input) {
         switch (input) {
-            case "int":
-                this.command = 46;
-                return "01111010";
-            case "float":
-                this.command = 47;
-                return "01111100";
-            case "double":
+            case "single":
                 this.command = 48;
-                return "01111110";
+                return "10000000";
+            case "double":
+                this.command = 49;
+                return "10000001";
             default: // invalid
                 return null;
         }
@@ -408,15 +473,12 @@ public class InstructionToBinaryParser {
 
     private String storeOpcodes(String input) {
         switch (input) {
-            case "int":
-                this.command = 49;
-                return "10000010";
-            case "float":
+            case "single":
                 this.command = 50;
-                return "10000100";
+                return "10001000";
             case "double":
                 this.command = 51;
-                return "10000110";
+                return "10001001";
             default: // invalid
                 return null;
         }
@@ -445,6 +507,10 @@ public class InstructionToBinaryParser {
         }
 
         return this.getRegisterNumberInBinary(registerNumber);
+    }
+
+    private String getSecondArgumentIfRegister(String input) {
+        return this.getRegister(input);
     }
 
     private String getRegisterNumberInBinary(int registerNumber) {
@@ -620,6 +686,13 @@ public class InstructionToBinaryParser {
         String invertedBinaryNumber = "";
         String twosComplementBinaryNumber = "";
         double powerOfTwo = Math.floor(Math.pow(2, binaryDigits - 1));
+        boolean negative = false;
+
+        if (decimalNumber < 0) {
+            negative = true;
+        }
+
+        decimalNumber = Math.abs(decimalNumber);
 
         while (powerOfTwo > 0) {
             if (powerOfTwo <= decimalNumber) {
@@ -631,7 +704,7 @@ public class InstructionToBinaryParser {
             powerOfTwo = Math.floor(powerOfTwo / 2);
         }
 
-        if (decimalNumber < 0) {
+        if (negative) {
             for (int i = 0; i < binaryNumber.length(); i++) {
                 if (binaryNumber.charAt(i) == '0') {
                     invertedBinaryNumber = invertedBinaryNumber + "1";
