@@ -440,7 +440,7 @@ public class InstructionToBinaryParser {
             return null; // invalid input -- not an integer
         }
 
-        if (registerNumber < 0 || registerNumber > 30) {
+        if (registerNumber < 0 || registerNumber > 31) {
             return null; // invalid input -- not a valid register number
         }
 
