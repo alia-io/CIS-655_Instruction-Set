@@ -100,82 +100,334 @@ public class InstructionExecuter {
 
     // instructions 6, 7, 8, 9, 10, 11
     private void executeConvertInstruction(String opcode, String register1, String register2) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        if (register2.length() == 5) {
+            switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+                case 1: // int-to-
+                    if (lastBit == 0) { // -float
+                        this.convertIntToFloat(register1, register2);
+                    } else if (lastBit == 1) { // -double
+                        this.convertIntToDouble(register1, register2);
+                    }
+                    break;
+                case 2: // float-to-
+                    if (lastBit == 0) { // -int
+                        this.convertFloatToInt(register1, register2);
+                    } else if (lastBit == 1) { // -double
+                        this.convertFloatToDouble(register1, register2);
+                    }
+                    break;
+                case 3: // double-to-
+                    if (lastBit == 0) { // -int
+                        this.convertDoubleToInt(register1, register2);
+                    } else if (lastBit == 1) { // -float
+                        this.convertDoubleToFloat(register1, register2);
+                    }
+                    break;
+            }
+        }
     }
 
     // instruction 12
     private void executeShiftLeftInstruction(String register1, String register2, String immediate) {
-
+        if (immediate.length() == 32) {
+            this.shiftLeft(register1, register2, immediate);
+        }
     }
 
     // instruction 13
     private void executeShiftRightInstruction(String register1, String register2, String immediate) {
-
+        if (immediate.length() == 32) {
+            this.shiftRight(register1, register2, immediate);
+        }
     }
 
     // instructions 14, 15
     private void executeNotInstruction(String opcode, String register1, String register2OrImmediate) {
-
+        if (this.getOpcodeBit7(opcode.substring(7)) == 0) {
+            switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+                case 0:
+                    if (register2OrImmediate.length() == 32) { this.notImm(register1, register2OrImmediate); }
+                    break;
+                case 1:
+                    if (register2OrImmediate.length() == 5) { this.notInt(register1, register2OrImmediate); }
+                    break;
+            }
+        }
     }
 
     // instructions 16, 17
     private void executeAndInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if ((lastBit == 0 || lastBit == 1) && register3OrImmediate.length() == 32) {
+                    this.andImm(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.andInt(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 18, 19
     private void executeOrInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if ((lastBit == 0 || lastBit == 1) && register3OrImmediate.length() == 32) {
+                    this.orImm(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.orInt(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 20, 21
     private void executeXorInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if ((lastBit == 0 || lastBit == 1) && register3OrImmediate.length() == 32) {
+                    this.xorImm(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.xorInt(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 22, 23, 24, 25
     private void executeAddInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if ((lastBit == 0 || lastBit == 1) && register3OrImmediate.length() == 32) {
+                    this.addImm(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.addInt(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 2:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.addFloat(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 3:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.addDouble(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 26, 27, 28, 29
     private void executeSubInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if (register3OrImmediate.length() == 32) {
+                    if (lastBit == 0) {
+                        this.subImm(register1, register2, register3OrImmediate, true);
+                    } else if (lastBit == 1) {
+                        this.subImm(register1, register2, register3OrImmediate, false);
+                    }
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.subInt(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 2:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.subFloat(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 3:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.subDouble(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 30, 31, 32, 33
     private void executeMultInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if ((lastBit == 0 || lastBit == 1) && register3OrImmediate.length() == 32) {
+                    this.multImm(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.multInt(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 2:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.multFloat(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 3:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.multDouble(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 34, 35, 36, 37
     private void executeDivInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if (register3OrImmediate.length() == 32) {
+                    if (lastBit == 0) {
+                        this.divImm(register1, register2, register3OrImmediate, true);
+                    } else if (lastBit == 1) {
+                        this.divImm(register1, register2, register3OrImmediate, false);
+                    }
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.divInt(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 2:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.divFloat(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 3:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.divDouble(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 38, 39
     private void executeModInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if (register3OrImmediate.length() == 32) {
+                    if (lastBit == 0) {
+                        this.modImm(register1, register2, register3OrImmediate, true);
+                    } else if (lastBit == 1) {
+                        this.modImm(register1, register2, register3OrImmediate, false);
+                    }
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.modInt(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 40, 41, 42, 43
     private void executeSetLessThanInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if (register3OrImmediate.length() == 32) {
+                    if (lastBit == 0) {
+                        this.setLessThanImm(register1, register2, register3OrImmediate, true);
+                    } else if (lastBit == 1) {
+                        this.setLessThanImm(register1, register2, register3OrImmediate, false);
+                    }
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.setLessThanInt(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 2:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.setLessThanFloat(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 3:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.setLessThanDouble(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 44, 45, 46, 47
     private void executeSetEqualInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
-
+        int lastBit = this.getOpcodeBit7(opcode.substring(7));
+        switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+            case 0:
+                if ((lastBit == 0 || lastBit == 1) && register3OrImmediate.length() == 32) {
+                    this.setEqualImm(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 1:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.setEqualInt(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 2:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.setEqualFloat(register1, register2, register3OrImmediate);
+                }
+                break;
+            case 3:
+                if (lastBit == 0 && register3OrImmediate.length() == 5) {
+                    this.setEqualDouble(register1, register2, register3OrImmediate);
+                }
+                break;
+        }
     }
 
     // instructions 48, 49
     private void executeLoadInstruction(String opcode, String register1, String register2, String immediate) {
-
+        if ((this.getOpcodeBits5And6(opcode.substring(5, 7)) == 0) && (immediate.length() == 32)) {
+            switch (this.getOpcodeBit7(opcode.substring(7))) {
+                case 0:
+                    this.loadSingle(register1, register2, immediate);
+                    break;
+                case 1:
+                    this.loadDouble(register1, register2, immediate);
+                    break;
+            }
+        }
     }
 
     // instructions 50, 51
     private void executeStoreInstruction(String opcode, String register1, String register2, String immediate) {
-
+        if ((this.getOpcodeBits5And6(opcode.substring(5, 7)) == 0) && (immediate.length() == 32)) {
+            switch (this.getOpcodeBit7(opcode.substring(7))) {
+                case 0:
+                    this.storeSingle(register1, register2, immediate);
+                    break;
+                case 1:
+                    this.storeDouble(register1, register2, immediate);
+                    break;
+            }
+        }
     }
 
     // instruction #1
