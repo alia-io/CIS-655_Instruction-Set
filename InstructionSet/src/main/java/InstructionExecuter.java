@@ -1,13 +1,11 @@
 public class InstructionExecuter {
 
     private boolean executed; // set to true when instruction is successfully completed
-    private int command;
 
     // return true if successful, false otherwise
     public boolean executeInstruction(String instruction) {
 
         this.executed = false;
-        this.command = 0;
 
         switch (this.getOpcodeBits0To4(instruction.substring(0, 5))) {
             case 0: // put - 1, 2, 3
@@ -67,32 +65,37 @@ public class InstructionExecuter {
         }
 
         return this.executed;
-
-        // separate by length
-        /*
-        if (instruction.length() == 18) { // 4, 5, 6, 7, 8, 9, 10, 11, 15
-
-        } else if (instruction.length() == 23) { // 17, 21, 23, 24, 25, 27, 28, 29, 31, 32, 33, 35, 36, 37, 39, 41, 42, 43, 45, 46, 47
-
-        } else if (instruction.length() == 45) { // 1, 2, 14
-
-        } else if (instruction.length() == 50) { // 12, 13, 16, 20, 22, 26, 30, 34, 38, 40, 44, 48, 49, 50, 51
-
-        } else if (instruction.length() == 77) { // 3
-
-        }
-
-        return false;*/
     }
 
     // instructions 1, 2, 3
     private void executePutInstruction(String opcode, String register, String immediate) {
-
+        if (this.getOpcodeBit7(opcode.substring(7)) == 0) {
+            switch (this.getOpcodeBits5And6(opcode.substring(5, 7))) {
+                case 1:
+                    if (immediate.length() == 32) { this.putInt(register, immediate); }
+                    break;
+                case 2:
+                    if (immediate.length() == 32) { this.putFloat(register, immediate); }
+                    break;
+                case 3:
+                    if (immediate.length() == 64) { this.putDouble(register, immediate); }
+                    break;
+            }
+        }
     }
 
     // instructions 4, 5
     private void executeCopyInstruction(String opcode, String register1, String register2) {
-
+        if ((this.getOpcodeBits5And6(opcode.substring(5, 7)) == 0) && (register2.length() == 5)) {
+            switch (this.getOpcodeBit7(opcode.substring(7))) {
+                case 0:
+                    this.copySingle(register1, register2);
+                    break;
+                case 1:
+                    this.copyDouble(register1, register2);
+                    break;
+            }
+        }
     }
 
     // instructions 6, 7, 8, 9, 10, 11
@@ -197,6 +200,236 @@ public class InstructionExecuter {
 
     // instruction #5
     private void copyDouble(String register1, String register2) {
+
+    }
+
+    // instruction #6
+    private void convertIntToFloat(String register1, String register2) {
+
+    }
+
+    // instruction #7
+    private void convertIntToDouble(String register1, String register2) {
+
+    }
+
+    // instruction #8
+    private void convertFloatToInt(String register1, String register2) {
+
+    }
+
+    // instruction #9
+    private void convertFloatToDouble(String register1, String register2) {
+
+    }
+
+    // instruction #10
+    private void convertDoubleToInt(String register1, String register2) {
+
+    }
+
+    // instruction #11
+    private void convertDoubleToFloat(String register1, String register2) {
+
+    }
+
+    // instruction #12
+    private void shiftLeft(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #13
+    private void shiftRight(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #14
+    private void notImm(String register1, String immediate) {
+
+    }
+
+    // instruction #15
+    private void notInt(String register1, String register2) {
+
+    }
+
+    // instruction #16
+    private void andImm(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #17
+    private void andInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #18
+    private void orImm(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #19
+    private void orInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #20
+    private void xorImm(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #21
+    private void xorInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #22
+    private void addImm(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #23
+    private void addInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #24
+    private void addFloat(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #25
+    private void addDouble(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #26
+    private void subImm(String register1, String register2, String immediate, boolean registerFirst) {
+
+    }
+
+    // instruction #27
+    private void subInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #28
+    private void subFloat(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #29
+    private void subDouble(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #30
+    private void multImm(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #31
+    private void multInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #32
+    private void multFloat(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #33
+    private void multDouble(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #34
+    private void divImm(String register1, String register2, String immediate, boolean registerFirst) {
+
+    }
+
+    // instruction #35
+    private void divInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #36
+    private void divFloat(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #37
+    private void divDouble(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #38
+    private void modImm(String register1, String register2, String immediate, boolean registerFirst) {
+
+    }
+
+    // instruction #39
+    private void modInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #40
+    private void setLessThanImm(String register1, String register2, String immediate, boolean registerFirst) {
+
+    }
+
+    // instruction #41
+    private void setLessThanInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #42
+    private void setLessThanFloat(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #43
+    private void setLessThanDouble(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #44
+    private void setEqualImm(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #45
+    private void setEqualInt(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #46
+    private void setEqualFloat(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #47
+    private void setEqualDouble(String register1, String register2, String register3) {
+
+    }
+
+    // instruction #48
+    private void loadSingle(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #49
+    private void loadDouble(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #50
+    private void storeSingle(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #51
+    private void storeDouble(String register1, String register2, String immediate) {
 
     }
 
