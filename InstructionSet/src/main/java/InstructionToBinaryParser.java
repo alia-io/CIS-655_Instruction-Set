@@ -556,7 +556,8 @@ public class InstructionToBinaryParser {
         return this.convertDecimalTo64BitBinaryDouble(doubleNumber);
     }
 
-    // IEEE conversion method source: http://sandbox.mc.edu/~bennet/cs110/flt/dtof.html
+    // IEEE format for single-precision floating-point
+    // Source: http://sandbox.mc.edu/~bennet/cs110/flt/dtof.html
     private String convertDecimalTo32BitBinaryFloat(float decimalNumber) {
 
         String sign;
@@ -617,7 +618,8 @@ public class InstructionToBinaryParser {
         return null;
     }
 
-    // IEEE conversion method source: http://web.cse.ohio-state.edu/~reeves.92/CSE2421au12/SlidesDay32.pdf
+    // IEEE format for double-precision floating-point
+    // Source: http://web.cse.ohio-state.edu/~reeves.92/CSE2421au12/SlidesDay32.pdf
     private String convertDecimalTo64BitBinaryDouble(double decimalNumber) {
 
         String result = "";
