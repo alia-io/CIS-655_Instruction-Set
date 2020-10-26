@@ -2,6 +2,10 @@ public class InstructionExecuter {
 
     private boolean executed; // set to true when instruction is successfully completed
 
+    public InstructionExecuter() {
+        this.executed = false;
+    }
+
     // return true if successful, false otherwise
     public boolean executeInstruction(String instruction) {
 
@@ -432,12 +436,16 @@ public class InstructionExecuter {
 
     // instruction #1
     private void putInt(String register, String immediate) {
-
+        int registerNumber = this.getSingleRegister(register);
+        if (registerNumber != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber, immediate);
+            this.executed = true;
+        }
     }
 
     // instruction #2
     private void putFloat(String register, String immediate) {
-
+        this.putInt(register, immediate);
     }
 
     // instruction #3
@@ -700,6 +708,30 @@ public class InstructionExecuter {
 
     private int getOpcodeBit7(String oneBitOpcode) {
         return this.convertBinaryToDecimalUnsigned(oneBitOpcode);
+    }
+
+    private int getSingleRegister(String binaryRegister) {
+        int decimalRegister = this.convertBinaryToDecimalUnsigned(binaryRegister);
+        if (decimalRegister < 0 || decimalRegister > 31) {
+            return -1;
+        }
+        return decimalRegister;
+    }
+
+    private int getFirstDoubleRegister(String binaryRegister) {
+        int decimalRegister = this.convertBinaryToDecimalUnsigned(binaryRegister);
+        if (decimalRegister < 0 || decimalRegister > 30) {
+            return -1;
+        }
+        return decimalRegister;
+    }
+
+    private int getSecondDoubleRegister(int firstDoubleRegister) {
+        int secondDoubleRegister = firstDoubleRegister + 1;
+        if (secondDoubleRegister < 1 || secondDoubleRegister > 31) {
+            return -1;
+        }
+        return secondDoubleRegister;
     }
 
     private int convertBinaryToDecimalUnsigned(String binaryNumber) {

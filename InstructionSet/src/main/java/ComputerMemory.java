@@ -24,8 +24,16 @@ public class ComputerMemory {
         return this.registerContents.get(key);
     }
 
+    public void setRegisterContentsByLocation(int key, String value) {
+        this.registerContents.put(key, value);
+    }
+
     public String getMemoryContentsByLocation(int key) {
         return this.memoryContents.get(key);
+    }
+
+    public void setMemoryContentsByLocation(int key, String value) {
+        this.memoryContents.put(key, value);
     }
 
 }

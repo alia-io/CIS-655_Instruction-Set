@@ -9,6 +9,7 @@ public class GUI {
 
     JFrame frame;
     InstructionToBinaryParser parser;
+    InstructionExecuter executer;
 
     JPanel registers;
     JTextArea registerTextArea;
@@ -26,6 +27,7 @@ public class GUI {
 
     public GUI() {
         parser = new InstructionToBinaryParser();
+        executer = new InstructionExecuter();
         setFrame();
         setPanels();
     }
@@ -121,6 +123,7 @@ public class GUI {
         String instruction = instructionTextField.getText();
         String rawResult;
         String displayResult = "";
+        boolean executed;
 
         if (instruction.equals("")) {
             instructionLabel1.setText("Type an instruction below to run...");
@@ -134,17 +137,28 @@ public class GUI {
             instructionLabel1.setText("Invalid instruction! Type an instruction below to run...");
             instructionLabel2.setText("");
         } else {
-            instructionLabel1.setText("Instruction: " + instruction);
-            if (rawResult.length() == 18 || rawResult.length() == 45) { // opcode (8) - register (5) - register (5) || opcode (8) - register(5) - immediate (32)
-                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13);
-            } else if (rawResult.length() == 23 || rawResult.length() == 50) { // opcode (8) - register (5) - register (5) - register (5) || // opcode (8) - register (5) - register (5) - immediate (32)
-                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18);
-            } else if (rawResult.length() == 77) { // opcode (8) - register(5) - immediate (32) - immediate (32)
-                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 45) + " " + rawResult.substring(45);
-            } else if (rawResult.length() == 82) { // opcode (8) - register (5) - register (5) - immediate (32) - immediate (32)
-                displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18, 50) + " " + rawResult.substring(50);
+
+            executed = executer.executeInstruction(rawResult);
+
+            if (executed) {
+                instructionLabel1.setText("Instruction: " + instruction);
+                if (rawResult.length() == 18 || rawResult.length() == 45) { // opcode (8) - register (5) - register (5) || opcode (8) - register(5) - immediate (32)
+                    displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13);
+                } else if (rawResult.length() == 23 || rawResult.length() == 50) { // opcode (8) - register (5) - register (5) - register (5) || // opcode (8) - register (5) - register (5) - immediate (32)
+                    displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18);
+                } else if (rawResult.length() == 77) { // opcode (8) - register(5) - immediate (32) - immediate (32)
+                    displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 45) + " " + rawResult.substring(45);
+                } else if (rawResult.length() == 82) { // opcode (8) - register (5) - register (5) - immediate (32) - immediate (32)
+                    displayResult = rawResult.substring(0, 8) + " " + rawResult.substring(8, 13) + " " + rawResult.substring(13, 18) + " " + rawResult.substring(18, 50) + " " + rawResult.substring(50);
+                }
+                instructionLabel2.setText("Translation: " + displayResult);
+                updateRegisterTextArea();
+                updateMemoryTextArea();
+            } else {
+                instructionLabel1.setText("Instruction unable to execute! Type an instruction below to run...");
+                instructionLabel2.setText("");
             }
-            instructionLabel2.setText("Translation: " + displayResult);
+
         }
 
         instructionTextField.setText("");
