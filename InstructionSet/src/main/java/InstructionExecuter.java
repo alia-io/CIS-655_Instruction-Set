@@ -1,9 +1,75 @@
 public class InstructionExecuter {
 
+    private boolean executed; // set to true when instruction is successfully completed
+    private int command;
+
     // return true if successful, false otherwise
     public boolean executeInstruction(String instruction) {
 
+        this.executed = false;
+        this.command = 0;
+
+        switch (this.getOpcodeBits0To4(instruction.substring(0, 5))) {
+            case 0: // put - 1, 2, 3
+                this.executePutInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13));
+                break;
+            case 1: // copy - 4, 5
+                this.executeCopyInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13));
+                break;
+            case 2: // convert - 6, 7, 8, 9, 10, 11
+                this.executeConvertInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13));
+                break;
+            case 3: // shift-left - 12
+                this.executeShiftLeftInstruction(instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 4: // shift-right - 13
+                this.executeShiftRightInstruction(instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 5: // not - 14, 15
+                this.executeNotInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13));
+                break;
+            case 6: // and - 16, 17
+                this.executeAndInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 7: // or - 18, 19
+                this.executeOrInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 8: // xor - 20, 21
+                this.executeXorInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 9: // add - 22, 23, 24, 25
+                this.executeAddInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 10: // sub - 26, 27, 28, 29
+                this.executeSubInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 11: // mult - 30, 31, 32, 33
+                this.executeMultInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 12: // div - 34, 35, 36, 37
+                this.executeDivInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 13: // mod - 38, 39
+                this.executeModInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 14: // set-less-than - 40, 41, 42, 43
+                this.executeSetLessThanInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 15: // set-equal - 44, 45, 46, 47
+                this.executeSetEqualInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 16: // load - 48, 49
+                this.executeLoadInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+            case 17: // store - 50, 51
+                this.executeStoreInstruction(instruction.substring(0, 8), instruction.substring(8, 13), instruction.substring(13, 18), instruction.substring(18));
+                break;
+        }
+
+        return this.executed;
+
         // separate by length
+        /*
         if (instruction.length() == 18) { // 4, 5, 6, 7, 8, 9, 10, 11, 15
 
         } else if (instruction.length() == 23) { // 17, 21, 23, 24, 25, 27, 28, 29, 31, 32, 33, 35, 36, 37, 39, 41, 42, 43, 45, 46, 47
@@ -16,7 +82,154 @@ public class InstructionExecuter {
 
         }
 
-        return false;
+        return false;*/
+    }
+
+    // instructions 1, 2, 3
+    private void executePutInstruction(String opcode, String register, String immediate) {
+
+    }
+
+    // instructions 4, 5
+    private void executeCopyInstruction(String opcode, String register1, String register2) {
+
+    }
+
+    // instructions 6, 7, 8, 9, 10, 11
+    private void executeConvertInstruction(String opcode, String register1, String register2) {
+
+    }
+
+    // instruction 12
+    private void executeShiftLeftInstruction(String register1, String register2, String immediate) {
+
+    }
+
+    // instruction 13
+    private void executeShiftRightInstruction(String register1, String register2, String immediate) {
+
+    }
+
+    // instructions 14, 15
+    private void executeNotInstruction(String opcode, String register1, String register2OrImmediate) {
+
+    }
+
+    // instructions 16, 17
+    private void executeAndInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 18, 19
+    private void executeOrInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 20, 21
+    private void executeXorInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 22, 23, 24, 25
+    private void executeAddInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 26, 27, 28, 29
+    private void executeSubInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 30, 31, 32, 33
+    private void executeMultInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 34, 35, 36, 37
+    private void executeDivInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 38, 39
+    private void executeModInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 40, 41, 42, 43
+    private void executeSetLessThanInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 44, 45, 46, 47
+    private void executeSetEqualInstruction(String opcode, String register1, String register2, String register3OrImmediate) {
+
+    }
+
+    // instructions 48, 49
+    private void executeLoadInstruction(String opcode, String register1, String register2, String immediate) {
+
+    }
+
+    // instructions 50, 51
+    private void executeStoreInstruction(String opcode, String register1, String register2, String immediate) {
+
+    }
+
+    // instruction #1
+    private void putInt(String register, String immediate) {
+
+    }
+
+    // instruction #2
+    private void putFloat(String register, String immediate) {
+
+    }
+
+    // instruction #3
+    private void putDouble(String register, String immediate) {
+
+    }
+
+    // instruction #4
+    private void copySingle(String register1, String register2) {
+
+    }
+
+    // instruction #5
+    private void copyDouble(String register1, String register2) {
+
+    }
+
+    /* one of 18 commands (0-17):
+        (0) put, (1) copy, (2) convert, (3) shift-left, (4) shift-right, (5) not,
+        (6) and, (7) or, (8) xor, (9) add, (10) sub, (11) mult,
+        (12) div, (13) mod, (14) set-less-than, (15) set-equal, (16) load, (17) store
+    */
+    private int getOpcodeBits0To4(String fiveBitOpcode) {
+        return this.convertBinaryToDecimalUnsigned(fiveBitOpcode);
+    }
+
+    private int getOpcodeBits5And6(String twoBitOpcode) {
+        return this.convertBinaryToDecimalUnsigned(twoBitOpcode);
+    }
+
+    private int getOpcodeBit7(String oneBitOpcode) {
+        return this.convertBinaryToDecimalUnsigned(oneBitOpcode);
+    }
+
+    private int convertBinaryToDecimalUnsigned(String binaryNumber) {
+
+        int decimalNumber = 0;
+        int powerOfTwo = 1;
+
+        for (int i = binaryNumber.length() - 1; i >= 0; i--) {
+            if (binaryNumber.charAt(i) == '1') {
+                decimalNumber = decimalNumber + powerOfTwo;
+            }
+            powerOfTwo = powerOfTwo * 2;
+        }
+
+        return decimalNumber;
     }
 
 }
