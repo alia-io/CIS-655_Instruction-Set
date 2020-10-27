@@ -451,16 +451,41 @@ public class InstructionExecuter {
     // instruction #3
     private void putDouble(String register, String immediate) {
 
+        int register1 = this.getFirstDoubleRegister(register);
+        int register2 = this.getSecondDoubleRegister(register1);
+
+        if (register1 != -1 && register2 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(register1, immediate.substring(0, 32));
+            Main.mainMemory.setRegisterContentsByLocation(register2, immediate.substring(32));
+            this.executed = true;
+        }
     }
 
     // instruction #4
     private void copySingle(String register1, String register2) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, Main.mainMemory.getRegisterContentsByLocation(registerNumber2));
+            this.executed = true;
+        }
     }
 
     // instruction #5
     private void copyDouble(String register1, String register2) {
 
+        int register1Part1 = this.getFirstDoubleRegister(register1);
+        int register1Part2 = this.getSecondDoubleRegister(register1Part1);
+        int register2Part1 = this.getFirstDoubleRegister(register2);
+        int register2Part2 = this.getSecondDoubleRegister(register2Part1);
+
+        if (register1Part1 != -1 && register1Part2 != -1 && register2Part1 != -1 && register2Part2 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(register1Part1, Main.mainMemory.getRegisterContentsByLocation(register2Part1));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part2, Main.mainMemory.getRegisterContentsByLocation(register2Part2));
+            this.executed = true;
+        }
     }
 
     // instruction #6
@@ -496,51 +521,222 @@ public class InstructionExecuter {
     // instruction #12
     private void shiftLeft(String register1, String register2, String immediate) {
 
+        int shiftAmount = this.convertBinaryToDecimalSigned(immediate);
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        String binaryValueToShift;
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            binaryValueToShift = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            if (shiftAmount <= binaryValueToShift.length()) {
+                binaryValueToShift = binaryValueToShift.substring(shiftAmount);
+                while (binaryValueToShift.length() < 32) {
+                    binaryValueToShift = binaryValueToShift + "0";
+                }
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
+                this.executed = true;
+            }
+        }
     }
 
     // instruction #13
     private void shiftRight(String register1, String register2, String immediate) {
 
+        int shiftAmount = this.convertBinaryToDecimalSigned(immediate);
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        String binaryValueToShift;
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            binaryValueToShift = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            if (shiftAmount <= binaryValueToShift.length()) {
+                binaryValueToShift = binaryValueToShift.substring(0, binaryValueToShift.length() - shiftAmount);
+                while (binaryValueToShift.length() < 32) {
+                    binaryValueToShift = "0" + binaryValueToShift;
+                }
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
+                this.executed = true;
+            }
+        }
+
     }
 
     // instruction #14
-    private void notImm(String register1, String immediate) {
+    private void notImm(String register, String immediate) {
 
+        int registerNumber = this.getSingleRegister(register);
+        String value = "";
+
+        if (registerNumber != -1) {
+            for (int i = 0; i < immediate.length(); i++) {
+                if (immediate.charAt(i) == '0') {
+                    value = value + "1";
+                } else {
+                    value = value + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber, value);
+            this.executed = true;
+        }
     }
 
     // instruction #15
     private void notInt(String register1, String register2) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        String oldValue;
+        String newValue = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            oldValue = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            for (int i = 0; i < oldValue.length(); i++) {
+                if (oldValue.charAt(i) == '0') {
+                    newValue = newValue + '1';
+                } else {
+                    newValue = newValue + '0';
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, newValue);
+            this.executed = true;
+        }
     }
 
     // instruction #16
     private void andImm(String register1, String register2, String immediate) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        String valueFromRegister2;
+        String result = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            valueFromRegister2 = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            for (int i = 0; i < immediate.length(); i++) {
+                if (immediate.charAt(i) == '1' && valueFromRegister2.charAt(i) == '1') {
+                    result = result + "1";
+                } else {
+                    result = result + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, result);
+        }
     }
 
     // instruction #17
     private void andInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+        String value1;
+        String value2;
+        String result = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            value1 = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            value2 = Main.mainMemory.getRegisterContentsByLocation(registerNumber3);
+            for (int i = 0; i < value1.length(); i++) {
+                if (value1.charAt(i) == '1' && value2.charAt(i) == '1') {
+                    result = result + "1";
+                } else {
+                    result = result + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, result);
+        }
     }
 
     // instruction #18
     private void orImm(String register1, String register2, String immediate) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        String valueFromRegister2;
+        String result = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            valueFromRegister2 = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            for (int i = 0; i < immediate.length(); i++) {
+                if (immediate.charAt(i) == '1' || valueFromRegister2.charAt(i) == '1') {
+                    result = result + "1";
+                } else {
+                    result = result + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, result);
+        }
     }
 
     // instruction #19
     private void orInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+        String value1;
+        String value2;
+        String result = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            value1 = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            value2 = Main.mainMemory.getRegisterContentsByLocation(registerNumber3);
+            for (int i = 0; i < value1.length(); i++) {
+                if (value1.charAt(i) == '1' || value2.charAt(i) == '1') {
+                    result = result + "1";
+                } else {
+                    result = result + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, result);
+        }
     }
 
     // instruction #20
     private void xorImm(String register1, String register2, String immediate) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        String valueFromRegister2;
+        String result = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            valueFromRegister2 = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            for (int i = 0; i < immediate.length(); i++) {
+                if ((immediate.charAt(i) == '1' && valueFromRegister2.charAt(i) == '0')
+                        || (immediate.charAt(i) == '0' && valueFromRegister2.charAt(i) == '1')) {
+                    result = result + "1";
+                } else {
+                    result = result + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, result);
+        }
     }
 
     // instruction #21
     private void xorInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+        String value1;
+        String value2;
+        String result = "";
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            value1 = Main.mainMemory.getRegisterContentsByLocation(registerNumber2);
+            value2 = Main.mainMemory.getRegisterContentsByLocation(registerNumber3);
+            for (int i = 0; i < value1.length(); i++) {
+                if ((value1.charAt(i) == '1' && value2.charAt(i) == '0')
+                        || (value1.charAt(i) == '0' && value2.charAt(i) == '1')) {
+                    result = result + "1";
+                } else {
+                    result = result + "0";
+                }
+            }
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1, result);
+        }
     }
 
     // instruction #22
@@ -744,6 +940,47 @@ public class InstructionExecuter {
                 decimalNumber = decimalNumber + powerOfTwo;
             }
             powerOfTwo = powerOfTwo * 2;
+        }
+
+        return decimalNumber;
+    }
+
+    private int convertBinaryToDecimalSigned(String inputBinaryNumber) {
+
+        String invertedBinaryNumber = "";
+        String binaryNumber = "";
+        int decimalNumber = 0;
+        int powerOfTwo = 1;
+
+        if (inputBinaryNumber.charAt(0) == '1') { // negative
+            for (int i = inputBinaryNumber.length() - 1; i >= 0; i--) {
+                if (inputBinaryNumber.charAt(i) == '0') {
+                    invertedBinaryNumber = "1" + invertedBinaryNumber;
+                } else {
+                    invertedBinaryNumber = inputBinaryNumber.substring(0, i) + "0" + invertedBinaryNumber;
+                    break;
+                }
+            }
+            for (int i = 0; i < invertedBinaryNumber.length(); i++) {
+                if (invertedBinaryNumber.charAt(i) == '0') {
+                    binaryNumber = binaryNumber + "1";
+                } else {
+                    binaryNumber = binaryNumber + "0";
+                }
+            }
+        } else {
+            binaryNumber = inputBinaryNumber;
+        }
+
+        for (int i = binaryNumber.length() - 1; i >= 0; i--) {
+            if (binaryNumber.charAt(i) == '1') {
+                decimalNumber = decimalNumber + powerOfTwo;
+            }
+            powerOfTwo = powerOfTwo * 2;
+        }
+
+        if (inputBinaryNumber.charAt(0) == '1') {
+            decimalNumber = decimalNumber * -1;
         }
 
         return decimalNumber;
