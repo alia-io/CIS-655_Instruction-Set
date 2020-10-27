@@ -622,8 +622,6 @@ public class InstructionToBinaryParser {
     // Source: http://web.cse.ohio-state.edu/~reeves.92/CSE2421au12/SlidesDay32.pdf
     private String convertDecimalTo64BitBinaryDouble(double decimalNumber) {
 
-        String result = "";
-
         String sign;
         String exponent;
         String mantissa;
@@ -773,7 +771,7 @@ public class InstructionToBinaryParser {
     private String convertFractionalToBinary(float fractional) {
 
         String binaryNumber = "";
-        int maxLength = 56;
+        int maxLength = 23;
 
         for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
             fractional = fractional * 2;
@@ -791,7 +789,7 @@ public class InstructionToBinaryParser {
     private String convertFractionalToBinary(double fractional) {
 
         String binaryNumber = "";
-        int maxLength = 56;
+        int maxLength = 52;
 
         for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
             fractional = fractional * 2;

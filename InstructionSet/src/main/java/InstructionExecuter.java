@@ -1065,14 +1065,56 @@ public class InstructionExecuter {
         return binaryNumber;
     }
 
-    // TODO:
     private float convert32BitBinaryFloatToDecimal(String floatNumber) {
 
-        String sign = floatNumber.substring(0, 1);
-        String exponent = floatNumber.substring(1, 9);
-        String mantissa = floatNumber.substring(9);
+        String signBinary = floatNumber.substring(0, 1);
+        String exponentBinary = floatNumber.substring(1, 9);
+        String mantissaBinary = floatNumber.substring(9);
 
-        return 0;
+        int exponent = this.convertBinaryToDecimalSigned(exponentBinary) - 127;
+
+        String integralBinary = "";
+        String fractionalBinary = "";
+
+        int integral;
+        float fractional;
+
+        boolean foundMantissa = false;
+
+        for (int i = mantissaBinary.length() - 1; i >= 0; i--) {
+            if (mantissaBinary.charAt(i) == '1') {
+                mantissaBinary = mantissaBinary.substring(0, i + 1);
+                foundMantissa = true;
+            }
+        }
+
+        if (!foundMantissa) {
+            mantissaBinary = "";
+        }
+
+        if (exponent > 0) {
+            integralBinary = "1" + mantissaBinary.substring(0, exponent);
+            fractionalBinary = mantissaBinary.substring(exponent);
+        } else if (exponent < 0) {
+            exponent = Math.abs(exponent);
+            integralBinary = "0";
+            fractionalBinary = "1" + mantissaBinary;
+            for (int i = 0; i < exponent; i++) {
+                fractionalBinary = "0" + fractionalBinary;
+            }
+        } else {
+            integralBinary = "1";
+            fractionalBinary = mantissaBinary;
+        }
+
+        integral = this.convertBinaryToIntegral(integralBinary);
+        fractional = this.convertBinaryToFractionalFloat(fractionalBinary);
+
+        if (signBinary == "1") {
+            integral = integral * (-1);
+        }
+
+        return integral + fractional;
     }
 
     // IEEE format for single-precision floating-point
@@ -1137,11 +1179,61 @@ public class InstructionExecuter {
         return null;
     }
 
+    private double convert64BitBinaryDoubleToDecimal(String doubleNumber) {
+
+        String signBinary = doubleNumber.substring(0, 1);
+        String exponentBinary = doubleNumber.substring(1, 12);
+        String mantissaBinary = doubleNumber.substring(12);
+
+        int exponent = this.convertBinaryToDecimalSigned(exponentBinary) - 1023;
+
+        String integralBinary = "";
+        String fractionalBinary = "";
+
+        int integral;
+        double fractional;
+
+        boolean foundMantissa = false;
+
+        for (int i = mantissaBinary.length() - 1; i >= 0; i--) {
+            if (mantissaBinary.charAt(i) == '1') {
+                mantissaBinary = mantissaBinary.substring(0, i + 1);
+                foundMantissa = true;
+            }
+        }
+
+        if (!foundMantissa) {
+            mantissaBinary = "";
+        }
+
+        if (exponent > 0) {
+            integralBinary = "1" + mantissaBinary.substring(0, exponent);
+            fractionalBinary = mantissaBinary.substring(exponent);
+        } else if (exponent < 0) {
+            exponent = Math.abs(exponent);
+            integralBinary = "0";
+            fractionalBinary = "1" + mantissaBinary;
+            for (int i = 0; i < exponent; i++) {
+                fractionalBinary = "0" + fractionalBinary;
+            }
+        } else {
+            integralBinary = "1";
+            fractionalBinary = mantissaBinary;
+        }
+
+        integral = this.convertBinaryToIntegral(integralBinary);
+        fractional = this.convertBinaryToFractionalDouble(fractionalBinary);
+
+        if (signBinary == "1") {
+            integral = integral * (-1);
+        }
+
+        return integral + fractional;
+    }
+
     // IEEE format for double-precision floating-point
     // Source: http://web.cse.ohio-state.edu/~reeves.92/CSE2421au12/SlidesDay32.pdf
     private String convertDecimalTo64BitBinaryDouble(double decimalNumber) {
-
-        String result = "";
 
         String sign;
         String exponent;
@@ -1227,16 +1319,25 @@ public class InstructionExecuter {
         return binaryNumber;
     }
 
-    // TODO:
-    private int convertBinaryToIntegral(String binaryNumber) {
+    private int convertBinaryToIntegral(String binaryIntegral) {
 
-        return 0;
+        int integral = 0;
+        int powerOfTwo = 1;
+
+        for (int i = binaryIntegral.length() - 1; i >= 0; i--) {
+            if (binaryIntegral.charAt(i) == '1') {
+                integral = integral + (int) Math.pow(2, i);
+            }
+            powerOfTwo = powerOfTwo * 2;
+        }
+
+        return integral;
     }
 
     private String convertFractionalToBinary(float fractional) {
 
         String binaryNumber = "";
-        int maxLength = 56;
+        int maxLength = 23;
 
         for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
             fractional = fractional * 2;
@@ -1251,10 +1352,36 @@ public class InstructionExecuter {
         return binaryNumber;
     }
 
+    private float convertBinaryToFractionalFloat(String binaryFractional) {
+
+        float fractional = 0;
+        int startingIndex = -1;
+
+        for (int i = binaryFractional.length() - 1; i >= 0; i--) {
+            if (binaryFractional.charAt(i) == '1') {
+                startingIndex = i;
+                break;
+            }
+        }
+
+        if (startingIndex == -1) {
+            return 0;
+        }
+
+        for (int i = startingIndex; i >= 0; i--) {
+            if (binaryFractional.charAt(i) == '1') {
+                fractional = fractional + 1;
+            }
+            fractional = fractional / 2;
+        }
+
+        return fractional;
+    }
+
     private String convertFractionalToBinary(double fractional) {
 
         String binaryNumber = "";
-        int maxLength = 56;
+        int maxLength = 52;
 
         for (int i = 0; (i < maxLength) && (fractional != 0); i++) {
             fractional = fractional * 2;
@@ -1267,6 +1394,32 @@ public class InstructionExecuter {
         }
 
         return binaryNumber;
+    }
+
+    private double convertBinaryToFractionalDouble(String binaryFractional) {
+
+        double fractional = 0;
+        int startingIndex = -1;
+
+        for (int i = binaryFractional.length() - 1; i >= 0; i--) {
+            if (binaryFractional.charAt(i) == '1') {
+                startingIndex = i;
+                break;
+            }
+        }
+
+        if (startingIndex == -1) {
+            return 0;
+        }
+
+        for (int i = startingIndex; i >= 0; i--) {
+            if (binaryFractional.charAt(i) == '1') {
+                fractional = fractional + 1;
+            }
+            fractional = fractional / 2;
+        }
+
+        return fractional;
     }
 
 }
