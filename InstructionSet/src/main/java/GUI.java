@@ -168,7 +168,7 @@ public class GUI {
 
     public void updateRegisterTextArea() {
         registerText = "";
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < Main.mainMemory.getNumberOfRegisters(); i++) {
             registerText = registerText + "\nR" + i + "\t" + Main.mainMemory.getRegisterContentsByLocation(i);
         }
         registerTextArea.setText(registerText);
@@ -176,11 +176,15 @@ public class GUI {
 
     public void updateMemoryTextArea() {
         memoryText = "";
-        for (int i = 0; i < 256; i++) {
-            memoryText = memoryText + "\n0x" + this.convertDecimalToFourDigitHexadecimal(i) + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
+        for (int i = 0; i < Main.mainMemory.getNumberOfMemoryItems(); i++) {
+            memoryText = memoryText + "\n0x" + this.convertMemoryLocationToHexadecimalByteLocation(i) + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
         }
         memoryText = memoryText + "\n   . . .";
         memoryTextArea.setText(memoryText);
+    }
+
+    private String convertMemoryLocationToHexadecimalByteLocation(int integerLocation) {
+        return this.convertDecimalToFourDigitHexadecimal(integerLocation * 4);
     }
 
     private String convertDecimalToFourDigitHexadecimal(int decimalNumber) {

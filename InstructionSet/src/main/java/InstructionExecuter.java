@@ -1300,6 +1300,7 @@ public class InstructionExecuter {
     // instruction #48
     private void loadSingle(String register1, String register2, String immediate) {
 
+
     }
 
     // instruction #49

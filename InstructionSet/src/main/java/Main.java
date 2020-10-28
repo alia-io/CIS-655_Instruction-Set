@@ -6,7 +6,7 @@ public class Main {
     public static GUI mainGui;
 
     public static void main(String[] args) {
-        mainMemory = new ComputerMemory();
+        mainMemory = new ComputerMemory(32, 1024);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
