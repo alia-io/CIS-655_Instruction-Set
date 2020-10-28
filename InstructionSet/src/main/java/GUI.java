@@ -168,16 +168,16 @@ public class GUI {
 
     public void updateRegisterTextArea() {
         registerText = "";
-        for (int i = 0; i < Main.mainMemory.getNumberOfRegisters(); i++) {
-            registerText = registerText + "\nR" + i + "\t" + Main.mainMemory.getRegisterContentsByLocation(i);
+        for (int i = 0; i < Main.memory.getNumberOfRegisters(); i++) {
+            registerText = registerText + "\nR" + i + "\t" + Main.memory.getRegisterContentsByLocation(i);
         }
         registerTextArea.setText(registerText);
     }
 
     public void updateMemoryTextArea() {
         memoryText = "";
-        for (int i = 0; i < Main.mainMemory.getNumberOfMemoryItems(); i++) {
-            memoryText = memoryText + "\n0x" + this.convertMemoryLocationToHexadecimalByteLocation(i) + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
+        for (int i = 0; i < Main.memory.getNumberOfMemoryItems(); i++) {
+            memoryText = memoryText + "\n0x" + this.convertMemoryLocationToHexadecimalByteLocation(i) + "\t" + Main.memory.getMemoryContentsByLocation(i);
         }
         memoryText = memoryText + "\n   . . .";
         memoryTextArea.setText(memoryText);

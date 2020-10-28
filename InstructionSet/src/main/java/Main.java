@@ -2,15 +2,15 @@ import javax.swing.*;
 
 public class Main {
 
-    public static ComputerMemory mainMemory;
-    public static GUI mainGui;
+    public static ComputerMemory memory;
+    public static GUI gui;
 
     public static void main(String[] args) {
-        mainMemory = new ComputerMemory(32, 1024);
+        memory = new ComputerMemory(32, 1024);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                mainGui = new GUI();
+                gui = new GUI();
             }
         });
     }
