@@ -879,116 +879,427 @@ public class InstructionExecuter {
     // instruction #26
     private void subImm(String register1, String register2, String immediate, boolean registerFirst) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int register2Value;
+        int immediateValue;
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            register2Value = this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2));
+            immediateValue = this.convertBinaryToDecimalSigned(immediate);
+            if (registerFirst) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                        this.convertDecimalTo32BitBinaryIntegerSigned(register2Value - immediateValue));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                        this.convertDecimalTo32BitBinaryIntegerSigned(immediateValue - register2Value));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #27
     private void subInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryIntegerSigned(
+                            this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    - this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #28
     private void subFloat(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryFloat(
+                            this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    - this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #29
     private void subDouble(String register1, String register2, String register3) {
 
+        int register1Part1 = this.getFirstDoubleRegister(register1);
+        int register1Part2 = this.getSecondDoubleRegister(register1Part1);
+        int register2Part1 = this.getFirstDoubleRegister(register2);
+        int register2Part2 = this.getSecondDoubleRegister(register2Part1);
+        int register3Part1 = this.getFirstDoubleRegister(register3);
+        int register3Part2 = this.getSecondDoubleRegister(register3Part1);
+
+        String result;
+
+        if (register1Part1 != -1 && register1Part2 != -1 && register2Part1 != -1 && register2Part2 != -1 && register3Part1 != -1 && register3Part2 != -1) {
+            result = this.convertDecimalTo64BitBinaryDouble(
+                    this.convert64BitBinaryDoubleToDecimal(
+                            Main.mainMemory.getRegisterContentsByLocation(register2Part1) + Main.mainMemory.getRegisterContentsByLocation(register2Part2))
+                            - this.convert64BitBinaryDoubleToDecimal(
+                            Main.mainMemory.getRegisterContentsByLocation(register3Part1) + Main.mainMemory.getRegisterContentsByLocation(register3Part2)));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part1, result.substring(0, 32));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part2, result.substring(32));
+            this.executed = true;
+        }
     }
 
     // instruction #30
     private void multImm(String register1, String register2, String immediate) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryIntegerSigned(this.convertBinaryToDecimalSigned(immediate)
+                            * this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))));
+            this.executed = true;
+        }
     }
 
     // instruction #31
     private void multInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryIntegerSigned(
+                            this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    * this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #32
     private void multFloat(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryFloat(
+                            this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    * this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #33
     private void multDouble(String register1, String register2, String register3) {
 
+        int register1Part1 = this.getFirstDoubleRegister(register1);
+        int register1Part2 = this.getSecondDoubleRegister(register1Part1);
+        int register2Part1 = this.getFirstDoubleRegister(register2);
+        int register2Part2 = this.getSecondDoubleRegister(register2Part1);
+        int register3Part1 = this.getFirstDoubleRegister(register3);
+        int register3Part2 = this.getSecondDoubleRegister(register3Part1);
+
+        String result;
+
+        if (register1Part1 != -1 && register1Part2 != -1 && register2Part1 != -1 && register2Part2 != -1 && register3Part1 != -1 && register3Part2 != -1) {
+            result = this.convertDecimalTo64BitBinaryDouble(
+                    this.convert64BitBinaryDoubleToDecimal(
+                            Main.mainMemory.getRegisterContentsByLocation(register2Part1) + Main.mainMemory.getRegisterContentsByLocation(register2Part2))
+                            * this.convert64BitBinaryDoubleToDecimal(
+                            Main.mainMemory.getRegisterContentsByLocation(register3Part1) + Main.mainMemory.getRegisterContentsByLocation(register3Part2)));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part1, result.substring(0, 32));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part2, result.substring(32));
+            this.executed = true;
+        }
     }
 
     // instruction #34
     private void divImm(String register1, String register2, String immediate, boolean registerFirst) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int register2Value;
+        int immediateValue;
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            register2Value = this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2));
+            immediateValue = this.convertBinaryToDecimalSigned(immediate);
+            if (registerFirst) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                        this.convertDecimalTo32BitBinaryIntegerSigned(register2Value / immediateValue));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                        this.convertDecimalTo32BitBinaryIntegerSigned(immediateValue / register2Value));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #35
     private void divInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryIntegerSigned(
+                            this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    / this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #36
     private void divFloat(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryFloat(
+                            this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    / this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #37
     private void divDouble(String register1, String register2, String register3) {
 
+        int register1Part1 = this.getFirstDoubleRegister(register1);
+        int register1Part2 = this.getSecondDoubleRegister(register1Part1);
+        int register2Part1 = this.getFirstDoubleRegister(register2);
+        int register2Part2 = this.getSecondDoubleRegister(register2Part1);
+        int register3Part1 = this.getFirstDoubleRegister(register3);
+        int register3Part2 = this.getSecondDoubleRegister(register3Part1);
+
+        String result;
+
+        if (register1Part1 != -1 && register1Part2 != -1 && register2Part1 != -1 && register2Part2 != -1 && register3Part1 != -1 && register3Part2 != -1) {
+            result = this.convertDecimalTo64BitBinaryDouble(
+                    this.convert64BitBinaryDoubleToDecimal(
+                            Main.mainMemory.getRegisterContentsByLocation(register2Part1) + Main.mainMemory.getRegisterContentsByLocation(register2Part2))
+                            / this.convert64BitBinaryDoubleToDecimal(
+                            Main.mainMemory.getRegisterContentsByLocation(register3Part1) + Main.mainMemory.getRegisterContentsByLocation(register3Part2)));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part1, result.substring(0, 32));
+            Main.mainMemory.setRegisterContentsByLocation(register1Part2, result.substring(32));
+            this.executed = true;
+        }
     }
 
     // instruction #38
     private void modImm(String register1, String register2, String immediate, boolean registerFirst) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int register2Value;
+        int immediateValue;
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            register2Value = this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2));
+            immediateValue = this.convertBinaryToDecimalSigned(immediate);
+            if (registerFirst) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                        this.convertDecimalTo32BitBinaryIntegerSigned(register2Value % immediateValue));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                        this.convertDecimalTo32BitBinaryIntegerSigned(immediateValue % register2Value));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #39
     private void modInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
+            Main.mainMemory.setRegisterContentsByLocation(registerNumber1,
+                    this.convertDecimalTo32BitBinaryIntegerSigned(
+                            this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                                    % this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))));
+            this.executed = true;
+        }
     }
 
     // instruction #40
     private void setLessThanImm(String register1, String register2, String immediate, boolean registerFirst) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int register2Value;
+        int immediateValue;
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            register2Value = this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2));
+            immediateValue = this.convertBinaryToDecimalSigned(immediate);
+            if (registerFirst) {
+                if (register2Value < immediateValue) {
+                    Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+                } else {
+                    Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+                }
+            } else {
+                if (immediateValue < register2Value) {
+                    Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+                } else {
+                    Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+                }
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #41
     private void setLessThanInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            if (this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                    < this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #42
     private void setLessThanFloat(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            if (this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                    < this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #43
     private void setLessThanDouble(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getFirstDoubleRegister(register1);
+        int register2Part1 = this.getFirstDoubleRegister(register2);
+        int register2Part2 = this.getSecondDoubleRegister(register2Part1);
+        int register3Part1 = this.getFirstDoubleRegister(register3);
+        int register3Part2 = this.getSecondDoubleRegister(register3Part1);
+
+        if (registerNumber1 != -1 && register2Part1 != -1 && register2Part2 != -1 && register3Part1 != -1 && register3Part2 != -1) {
+            if (this.convert64BitBinaryDoubleToDecimal(Main.mainMemory.getRegisterContentsByLocation(register2Part1) + Main.mainMemory.getRegisterContentsByLocation(register2Part2))
+                    < this.convert64BitBinaryDoubleToDecimal(Main.mainMemory.getRegisterContentsByLocation(register3Part1) + Main.mainMemory.getRegisterContentsByLocation(register3Part2))) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #44
     private void setEqualImm(String register1, String register2, String immediate) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            if (this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                    == this.convertBinaryToDecimalSigned(immediate)) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #45
     private void setEqualInt(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            if (this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                    == this.convertBinaryToDecimalSigned(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #46
     private void setEqualFloat(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getSingleRegister(register1);
+        int registerNumber2 = this.getSingleRegister(register2);
+        int registerNumber3 = this.getSingleRegister(register3);
+
+        if (registerNumber1 != -1 && registerNumber2 != -1) {
+            if (this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber2))
+                    == this.convert32BitBinaryFloatToDecimal(Main.mainMemory.getRegisterContentsByLocation(registerNumber3))) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #47
     private void setEqualDouble(String register1, String register2, String register3) {
 
+        int registerNumber1 = this.getFirstDoubleRegister(register1);
+        int register2Part1 = this.getFirstDoubleRegister(register2);
+        int register2Part2 = this.getSecondDoubleRegister(register2Part1);
+        int register3Part1 = this.getFirstDoubleRegister(register3);
+        int register3Part2 = this.getSecondDoubleRegister(register3Part1);
+
+        if (registerNumber1 != -1 && register2Part1 != -1 && register2Part2 != -1 && register3Part1 != -1 && register3Part2 != -1) {
+            if (this.convert64BitBinaryDoubleToDecimal(Main.mainMemory.getRegisterContentsByLocation(register2Part1) + Main.mainMemory.getRegisterContentsByLocation(register2Part2))
+                    < this.convert64BitBinaryDoubleToDecimal(Main.mainMemory.getRegisterContentsByLocation(register3Part1) + Main.mainMemory.getRegisterContentsByLocation(register3Part2))) {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(1, 32));
+            } else {
+                Main.mainMemory.setRegisterContentsByLocation(registerNumber1, this.convertDecimalToBinaryIntegerUnsigned(0, 32));
+            }
+            this.executed = true;
+        }
     }
 
     // instruction #48
     private void loadSingle(String register1, String register2, String immediate) {
-
+        
     }
 
     // instruction #49
