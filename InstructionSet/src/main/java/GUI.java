@@ -22,6 +22,7 @@ public class GUI {
     JButton instructionButton;
 
     JPanel memory;
+    JScrollPane memoryScrollPane;
     JTextArea memoryTextArea;
     String memoryText;
 
@@ -34,7 +35,7 @@ public class GUI {
 
     private void setFrame() {
         frame = new JFrame("Instruction Set - Alifa Stith");
-        frame.setSize(700, 800);
+        frame.setSize(700, 700);
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -85,9 +86,10 @@ public class GUI {
 
     private void setNewMemoryContents() {
         memoryTextArea = new JTextArea(10, 30);
+        memoryScrollPane = new JScrollPane(memoryTextArea);
         updateMemoryTextArea();
         memoryTextArea.setEditable(false);
-        memory.add(memoryTextArea);
+        memory.add(memoryScrollPane);
     }
 
     private void setInstructionTextField() {
@@ -174,10 +176,49 @@ public class GUI {
 
     public void updateMemoryTextArea() {
         memoryText = "";
-        for (int i = 0; i < 32; i++) {
-            memoryText = memoryText + "\n" + i + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
+        for (int i = 0; i < 256; i++) {
+            memoryText = memoryText + "\n0x" + this.convertDecimalToFourDigitHexadecimal(i) + "\t" + Main.mainMemory.getMemoryContentsByLocation(i);
         }
+        memoryText = memoryText + "\n   . . .";
         memoryTextArea.setText(memoryText);
+    }
+
+    private String convertDecimalToFourDigitHexadecimal(int decimalNumber) {
+
+        String hexadecimalNumber = "";
+
+        while (decimalNumber != 0) {
+            hexadecimalNumber = hexadecimalNumber + this.convertDecimalToSingleDigitHexadecimal(decimalNumber % 16);
+            decimalNumber = decimalNumber / 16;
+        }
+
+        while (hexadecimalNumber.length() < 4) {
+            hexadecimalNumber = "0" + hexadecimalNumber;
+        }
+
+        return hexadecimalNumber;
+    }
+
+    private String convertDecimalToSingleDigitHexadecimal(int decimal) {
+        switch (decimal) {
+            case 0: return "0";
+            case 1: return "1";
+            case 2: return "2";
+            case 3: return "3";
+            case 4: return "4";
+            case 5: return "5";
+            case 6: return "6";
+            case 7: return "7";
+            case 8: return "8";
+            case 9: return "9";
+            case 10: return "A";
+            case 11: return "B";
+            case 12: return "C";
+            case 13: return "D";
+            case 14: return "E";
+            case 15: return "F";
+            default: return null;
+        }
     }
 
 }

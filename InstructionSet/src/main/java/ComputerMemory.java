@@ -15,7 +15,7 @@ public class ComputerMemory {
         for (int i = 0; i < 32; i++) {
             this.registerContents.put(i, "00000000000000000000000000000000");
         }
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < 256; i++) {
             this.memoryContents.put(i, "00000000000000000000000000000000");
         }
     }
