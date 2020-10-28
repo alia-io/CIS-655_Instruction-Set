@@ -33,30 +33,34 @@ public class InstructionToBinaryParser {
 
         opcode = this.getOpcode(input[0]);
 
-        if (this.command == 0 || this.command > 11 || opcode == null) { // invalid command
+        if (this.command == 0 || this.command == 12 || this.command == 13 || this.command > 15 || opcode == null) { // invalid command
             return null;
         }
 
         register1 = this.getRegister(input[1]);
 
-        if (register1 == null) { return null; } // invalid command
+        if (register1 == null) {
+            return null;  // invalid command
+        }
 
-        if (this.command < 4) { // put command - 2nd arg is immediate
-            if (this.command == 1) {
+        if (this.command < 4 || this.command == 14) { // put or not command - 2nd arg is immediate
+            if (this.command == 1 || this.command == 14) {
                 immediate = this.getIntegerImmediate(input[2]);
                 if (immediate == null) { return null; } // invalid command
             } else if (this.command == 2) {
                 immediate = this.getFloatImmediate(input[2]);
                 if (immediate == null) { return null; } // invalid command
-            } else { // command 3
+            } else if (this.command == 3) {
                 immediate = this.getDoubleImmediate(input[2]);
                 if (immediate == null) { return null; } // invalid command
             }
             return opcode + register1 + immediate; // opcode + 1 register + immediate (45 bits or 77 bits)
 
-        } else { // convert or copy command - 2nd arg is register
+        } else { // convert or copy or not command - 2nd arg is register
             register2 = this.getRegister(input[2]);
-            if (register2 == null) { return null; } // invalid command
+            if (register2 == null) {
+                return null;  // invalid command
+            }
             return opcode + register1 + register2; // opcode + 2 registers (18 bits)
         }
 
