@@ -592,14 +592,26 @@ public class InstructionExecuter {
 
         if (registerNumber1 != -1 && registerNumber2 != -1) {
             binaryValueToShift = Main.memory.getRegisterContentsByLocation(registerNumber2);
-            if (shiftAmount <= binaryValueToShift.length()) {
-                binaryValueToShift = binaryValueToShift.substring(shiftAmount);
+            if (Math.abs(shiftAmount) <= binaryValueToShift.length()) {
+                if (shiftAmount >= 0) {
+                    binaryValueToShift = binaryValueToShift.substring(shiftAmount);
+                    while (binaryValueToShift.length() < 32) {
+                        binaryValueToShift = binaryValueToShift + "0";
+                    }
+                } else { // shift right
+                    binaryValueToShift = binaryValueToShift.substring(0, binaryValueToShift.length() - Math.abs(shiftAmount));
+                    while (binaryValueToShift.length() < 32) {
+                        binaryValueToShift = "0" + binaryValueToShift;
+                    }
+                }
+            } else {
+                binaryValueToShift = "";
                 while (binaryValueToShift.length() < 32) {
                     binaryValueToShift = binaryValueToShift + "0";
                 }
-                Main.memory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
-                this.executed = true;
             }
+            Main.memory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
+            this.executed = true;
         }
     }
 
@@ -613,14 +625,26 @@ public class InstructionExecuter {
 
         if (registerNumber1 != -1 && registerNumber2 != -1) {
             binaryValueToShift = Main.memory.getRegisterContentsByLocation(registerNumber2);
-            if (shiftAmount <= binaryValueToShift.length()) {
-                binaryValueToShift = binaryValueToShift.substring(0, binaryValueToShift.length() - shiftAmount);
+            if (Math.abs(shiftAmount) <= binaryValueToShift.length()) {
+                if (shiftAmount >= 0) {
+                    binaryValueToShift = binaryValueToShift.substring(0, binaryValueToShift.length() - shiftAmount);
+                    while (binaryValueToShift.length() < 32) {
+                        binaryValueToShift = "0" + binaryValueToShift;
+                    }
+                } else { // shift left
+                    binaryValueToShift = binaryValueToShift.substring(Math.abs(shiftAmount));
+                    while (binaryValueToShift.length() < 32) {
+                        binaryValueToShift = binaryValueToShift + "0";
+                    }
+                }
+            } else {
+                binaryValueToShift = "";
                 while (binaryValueToShift.length() < 32) {
                     binaryValueToShift = "0" + binaryValueToShift;
                 }
-                Main.memory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
-                this.executed = true;
             }
+            Main.memory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
+            this.executed = true;
         }
 
     }
