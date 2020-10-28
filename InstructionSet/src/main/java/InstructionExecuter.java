@@ -605,10 +605,7 @@ public class InstructionExecuter {
                     }
                 }
             } else {
-                binaryValueToShift = "";
-                while (binaryValueToShift.length() < 32) {
-                    binaryValueToShift = binaryValueToShift + "0";
-                }
+                binaryValueToShift = "00000000000000000000000000000000";
             }
             Main.memory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
             this.executed = true;
@@ -638,10 +635,7 @@ public class InstructionExecuter {
                     }
                 }
             } else {
-                binaryValueToShift = "";
-                while (binaryValueToShift.length() < 32) {
-                    binaryValueToShift = "0" + binaryValueToShift;
-                }
+                binaryValueToShift = "00000000000000000000000000000000";
             }
             Main.memory.setRegisterContentsByLocation(registerNumber1, binaryValueToShift);
             this.executed = true;
