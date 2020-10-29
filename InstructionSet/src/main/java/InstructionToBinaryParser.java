@@ -76,7 +76,7 @@ public class InstructionToBinaryParser {
 
         opcode = this.getOpcode(input[0]);
 
-        if (this.command < 12) { // invalid command
+        if (this.command < 12 || this.command == 14 || this.command == 15) { // invalid command
             return null;
         }
 
