@@ -1560,9 +1560,9 @@ public class InstructionExecuter {
 
         String signBinary = floatNumber.substring(0, 1);
         String exponentBinary = floatNumber.substring(1, 9);
-        String mantissaBinary = floatNumber.substring(9);
+        String mantissaBinary = "1" + floatNumber.substring(9);
 
-        int exponent = this.convertBinaryToDecimalSigned(exponentBinary) - 127;
+        int exponent = this.convertBinaryToDecimalUnsigned(exponentBinary) - 127;
 
         String integralBinary = "";
         String fractionalBinary = "";
@@ -1570,39 +1570,26 @@ public class InstructionExecuter {
         int integral;
         float fractional;
 
-        boolean foundMantissa = false;
-
-        for (int i = mantissaBinary.length() - 1; i >= 0; i--) {
-            if (mantissaBinary.charAt(i) == '1') {
-                mantissaBinary = mantissaBinary.substring(0, i + 1);
-                foundMantissa = true;
-            }
-        }
-
-        if (!foundMantissa) {
-            mantissaBinary = "";
-        }
-
         if (exponent > 0) {
-            integralBinary = "1" + mantissaBinary.substring(0, exponent);
-            fractionalBinary = mantissaBinary.substring(exponent);
+            integralBinary = mantissaBinary.substring(0, exponent + 1);
+            fractionalBinary = mantissaBinary.substring(exponent + 1);
         } else if (exponent < 0) {
-            exponent = Math.abs(exponent);
             integralBinary = "0";
-            fractionalBinary = "1" + mantissaBinary;
-            for (int i = 0; i < exponent; i++) {
-                fractionalBinary = "0" + fractionalBinary;
+            for (int i = 0; i < Math.abs(exponent) - 1; i++) {
+                fractionalBinary = fractionalBinary + "0";
             }
-        } else {
+            fractionalBinary = fractionalBinary + mantissaBinary;
+        } else { // exponent == 0
             integralBinary = "1";
-            fractionalBinary = mantissaBinary;
+            fractionalBinary = mantissaBinary.substring(1);
         }
 
         integral = this.convertBinaryToIntegral(integralBinary);
         fractional = this.convertBinaryToFractionalFloat(fractionalBinary);
 
-        if (signBinary == "1") {
+        if (signBinary.equals("1")) {
             integral = integral * (-1);
+            fractional = fractional * (-1);
         }
 
         return integral + fractional;
@@ -1674,9 +1661,9 @@ public class InstructionExecuter {
 
         String signBinary = doubleNumber.substring(0, 1);
         String exponentBinary = doubleNumber.substring(1, 12);
-        String mantissaBinary = doubleNumber.substring(12);
+        String mantissaBinary = "1" + doubleNumber.substring(12);
 
-        int exponent = this.convertBinaryToDecimalSigned(exponentBinary) - 1023;
+        int exponent = this.convertBinaryToDecimalUnsigned(exponentBinary) - 1023;
 
         String integralBinary = "";
         String fractionalBinary = "";
@@ -1684,39 +1671,26 @@ public class InstructionExecuter {
         int integral;
         double fractional;
 
-        boolean foundMantissa = false;
-
-        for (int i = mantissaBinary.length() - 1; i >= 0; i--) {
-            if (mantissaBinary.charAt(i) == '1') {
-                mantissaBinary = mantissaBinary.substring(0, i + 1);
-                foundMantissa = true;
-            }
-        }
-
-        if (!foundMantissa) {
-            mantissaBinary = "";
-        }
-
         if (exponent > 0) {
-            integralBinary = "1" + mantissaBinary.substring(0, exponent);
-            fractionalBinary = mantissaBinary.substring(exponent);
+            integralBinary = mantissaBinary.substring(0, exponent + 1);
+            fractionalBinary = mantissaBinary.substring(exponent + 1);
         } else if (exponent < 0) {
-            exponent = Math.abs(exponent);
             integralBinary = "0";
-            fractionalBinary = "1" + mantissaBinary;
-            for (int i = 0; i < exponent; i++) {
-                fractionalBinary = "0" + fractionalBinary;
+            for (int i = 0; i < Math.abs(exponent) - 1; i++) {
+                fractionalBinary = fractionalBinary + "0";
             }
-        } else {
+            fractionalBinary = fractionalBinary + mantissaBinary;
+        } else { // exponent == 0
             integralBinary = "1";
-            fractionalBinary = mantissaBinary;
+            fractionalBinary = mantissaBinary.substring(1);
         }
 
         integral = this.convertBinaryToIntegral(integralBinary);
         fractional = this.convertBinaryToFractionalDouble(fractionalBinary);
 
-        if (signBinary == "1") {
+        if (signBinary.equals("1")) {
             integral = integral * (-1);
+            fractional = fractional * (-1);
         }
 
         return integral + fractional;
@@ -1811,18 +1785,7 @@ public class InstructionExecuter {
     }
 
     private int convertBinaryToIntegral(String binaryIntegral) {
-
-        int integral = 0;
-        int powerOfTwo = 1;
-
-        for (int i = binaryIntegral.length() - 1; i >= 0; i--) {
-            if (binaryIntegral.charAt(i) == '1') {
-                integral = integral + (int) Math.pow(2, i);
-            }
-            powerOfTwo = powerOfTwo * 2;
-        }
-
-        return integral;
+        return this.convertBinaryToDecimalUnsigned(binaryIntegral);
     }
 
     private String convertFractionalToBinary(float fractional) {
@@ -1845,21 +1808,9 @@ public class InstructionExecuter {
 
     private float convertBinaryToFractionalFloat(String binaryFractional) {
 
-        float fractional = 0;
-        int startingIndex = -1;
+        float fractional = 1;
 
         for (int i = binaryFractional.length() - 1; i >= 0; i--) {
-            if (binaryFractional.charAt(i) == '1') {
-                startingIndex = i;
-                break;
-            }
-        }
-
-        if (startingIndex == -1) {
-            return 0;
-        }
-
-        for (int i = startingIndex; i >= 0; i--) {
             if (binaryFractional.charAt(i) == '1') {
                 fractional = fractional + 1;
             }
@@ -1889,21 +1840,9 @@ public class InstructionExecuter {
 
     private double convertBinaryToFractionalDouble(String binaryFractional) {
 
-        double fractional = 0;
-        int startingIndex = -1;
+        double fractional = 1;
 
         for (int i = binaryFractional.length() - 1; i >= 0; i--) {
-            if (binaryFractional.charAt(i) == '1') {
-                startingIndex = i;
-                break;
-            }
-        }
-
-        if (startingIndex == -1) {
-            return 0;
-        }
-
-        for (int i = startingIndex; i >= 0; i--) {
             if (binaryFractional.charAt(i) == '1') {
                 fractional = fractional + 1;
             }
