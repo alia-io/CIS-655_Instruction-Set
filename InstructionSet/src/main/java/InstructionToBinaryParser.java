@@ -755,7 +755,7 @@ public class InstructionToBinaryParser {
             return "0";
         }
 
-        while (powerOfTwo * 2 < integral) {
+        while (powerOfTwo * 2 <= integral) {
             powerOfTwo = powerOfTwo * 2;
         }
 
