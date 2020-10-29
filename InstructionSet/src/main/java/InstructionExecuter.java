@@ -850,8 +850,8 @@ public class InstructionExecuter {
 
         if (registerNumber1 != -1 && registerNumber2 != -1 && registerNumber3 != -1) {
             Main.memory.setRegisterContentsByLocation(registerNumber1,
-                    this.convertDecimalTo32BitBinaryIntegerSigned(this.convertBinaryToDecimalSigned(Main.memory.getMemoryContentsByLocation(registerNumber2))
-                            + this.convertBinaryToDecimalSigned(Main.memory.getMemoryContentsByLocation(registerNumber3))));
+                    this.convertDecimalTo32BitBinaryIntegerSigned(this.convertBinaryToDecimalSigned(Main.memory.getRegisterContentsByLocation(registerNumber2))
+                            + this.convertBinaryToDecimalSigned(Main.memory.getRegisterContentsByLocation(registerNumber3))));
             this.executed = true;
         }
     }
